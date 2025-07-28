@@ -31,6 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
+import com.example.soulscript.screens.DiaryEntryScreen
 import com.example.soulscript.ui.screens.HomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -100,14 +101,23 @@ fun MainScreen() {
         ) {
             composable(Routes.Home) { HomeScreen(
                 onAddEntryClick = {
-
+                    navController.navigate(Routes.DiaryEntry)
                 }
             ) }
             composable(Routes.History) { CalendarScreen() }
             composable(Routes.Stats) { StatsScreen() }
             composable(Routes.History) { SettingsScreen() }
+            composable("diary_entry") {
+                DiaryEntryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onSaveEntry = { title, content, mood ->
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
+
 }
 
 
@@ -129,14 +139,5 @@ fun StatsScreen() {
 fun SettingsScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Settings Screen", style = MaterialTheme.typography.headlineMedium)
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    SoulScriptTheme {
-        MainScreen()
     }
 }

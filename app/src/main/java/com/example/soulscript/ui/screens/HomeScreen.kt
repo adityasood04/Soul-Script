@@ -60,7 +60,7 @@ fun HomeScreen(
 fun GreetingSection() {
     Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp)) {
         Text(
-            text = getGreetingMessage(),
+            text = getGreetingMessage() +", Aditya",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
