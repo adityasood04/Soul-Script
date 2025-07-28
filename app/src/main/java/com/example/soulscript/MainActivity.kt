@@ -1,6 +1,7 @@
 package com.example.soulscript
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -21,15 +22,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
 import com.example.soulscript.screens.DiaryEntryScreen
 import com.example.soulscript.ui.screens.HistoryScreen
 import com.example.soulscript.ui.screens.HomeScreen
+import com.example.soulscript.ui.screens.NoteDetailScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,9 +109,8 @@ fun MainScreen() {
                 )
             }
             composable(Routes.History) {
-
-                HistoryScreen(onNoteClick = {
-
+                HistoryScreen(onNoteClick = {noteId->
+                    navController.navigate("note_detail/$noteId")
                 })
             }
             composable(Routes.Stats) { StatsScreen() }
@@ -117,7 +120,24 @@ fun MainScreen() {
 
                 DiaryEntryScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    viewModel = diaryEntryViewModel
+                    viewModel = diaryEntryViewModel,
+                    onSaveNote = {
+                        Toast.makeText(context, "Note saved successfully", Toast.LENGTH_SHORT).show()
+                        navController.popBackStack() 
+                    }
+                )
+            }
+
+
+            composable(
+                route = "note_detail/{noteId}",
+                arguments = listOf(navArgument("noteId") { type = NavType.IntType })
+            ) {
+                NoteDetailScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToEdit = { noteId ->
+                        // TODO : Add edit feature
+                    }
                 )
             }
         }
@@ -125,13 +145,6 @@ fun MainScreen() {
 
 }
 
-
-@Composable
-fun CalendarScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("History Screen", style = MaterialTheme.typography.headlineMedium)
-    }
-}
 
 @Composable
 fun StatsScreen() {

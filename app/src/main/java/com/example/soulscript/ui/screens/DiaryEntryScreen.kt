@@ -91,8 +91,9 @@ val moodOptions = listOf(
 @Composable
 fun DiaryEntryScreen(
     onNavigateBack: () -> Unit,
-    viewModel: DiaryEntryViewModel
-){
+    viewModel: DiaryEntryViewModel,
+    onSaveNote: () -> Unit
+) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     var selectedMood by remember { mutableStateOf(moodOptions.first()) }
@@ -137,7 +138,10 @@ fun DiaryEntryScreen(
                         },
                         actions = {
                             IconButton(
-                                onClick = { viewModel.saveEntry(title, content, selectedMood.label) },
+                                onClick = {
+                                    viewModel.saveEntry(title, content, selectedMood.label)
+                                    onSaveNote()
+                                },
                                 modifier = Modifier
                                     .background(
                                         color = fixedTextColor.copy(alpha = 0.1f),
