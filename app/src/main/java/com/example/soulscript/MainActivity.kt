@@ -1,29 +1,25 @@
 package com.example.soulscript
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Leaderboard
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Leaderboard
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,8 +28,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
 import com.example.soulscript.screens.DiaryEntryScreen
+import com.example.soulscript.ui.screens.HistoryScreen
 import com.example.soulscript.ui.screens.HomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
+import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -99,20 +97,27 @@ fun MainScreen() {
             startDestination = Routes.Home,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Routes.Home) { HomeScreen(
-                onAddEntryClick = {
-                    navController.navigate(Routes.DiaryEntry)
-                }
-            ) }
-            composable(Routes.History) { CalendarScreen() }
+            composable(Routes.Home) {
+                HomeScreen(
+                    onAddEntryClick = {
+                        navController.navigate(Routes.DiaryEntry)
+                    }
+                )
+            }
+            composable(Routes.History) {
+
+                HistoryScreen(onNoteClick = {
+
+                })
+            }
             composable(Routes.Stats) { StatsScreen() }
-            composable(Routes.History) { SettingsScreen() }
+            composable(Routes.Settings) { SettingsScreen() }
             composable("diary_entry") {
+                val diaryEntryViewModel: DiaryEntryViewModel = hiltViewModel()
+
                 DiaryEntryScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    onSaveEntry = { title, content, mood ->
-                        navController.popBackStack()
-                    }
+                    viewModel = diaryEntryViewModel
                 )
             }
         }

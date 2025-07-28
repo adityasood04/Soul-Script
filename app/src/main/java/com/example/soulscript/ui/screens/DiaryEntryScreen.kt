@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.theme.handwritingStyle
+import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -90,8 +91,8 @@ val moodOptions = listOf(
 @Composable
 fun DiaryEntryScreen(
     onNavigateBack: () -> Unit,
-    onSaveEntry: (title: String, content: String, mood: Mood) -> Unit
-) {
+    viewModel: DiaryEntryViewModel
+){
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     var selectedMood by remember { mutableStateOf(moodOptions.first()) }
@@ -136,7 +137,7 @@ fun DiaryEntryScreen(
                         },
                         actions = {
                             IconButton(
-                                onClick = { onSaveEntry(title, content, selectedMood) },
+                                onClick = { viewModel.saveEntry(title, content, selectedMood.label) },
                                 modifier = Modifier
                                     .background(
                                         color = fixedTextColor.copy(alpha = 0.1f),
