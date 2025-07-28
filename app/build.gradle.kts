@@ -55,7 +55,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
@@ -64,7 +63,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(libs.androidx.runtime.livedata)
-    implementation(libs.androidx.compose.bom.v20240500)
+    implementation(libs.androidx.compose.bom)
 
     implementation(libs.ui)
 
@@ -79,15 +78,15 @@ dependencies {
     //coil
     implementation(libs.coil.compose)
 
-    //room
-    implementation(libs.androidx.room.runtime.v261)
-    kapt(libs.androidx.room.compiler.v261)
-    implementation(libs.androidx.room.ktx.v261)
-
     //hilt
-    implementation(libs.hilt.android.v248)
-    kapt(libs.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation (libs.hilt.android)
+    kapt (libs.hilt.android.compiler)
+
+    //room
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
 
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.datastore.preferences)
