@@ -31,6 +31,7 @@ import androidx.navigation.navArgument
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
 import com.example.soulscript.screens.DiaryEntryScreen
+import com.example.soulscript.screens.StatsScreen
 import com.example.soulscript.ui.screens.HistoryScreen
 import com.example.soulscript.ui.screens.HomeScreen
 import com.example.soulscript.ui.screens.NoteDetailScreen
@@ -146,12 +147,6 @@ fun MainScreen() {
 }
 
 
-@Composable
-fun StatsScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Stats Screen", style = MaterialTheme.typography.headlineMedium)
-    }
-}
 
 @Composable
 fun SettingsScreen() {
