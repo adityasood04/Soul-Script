@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 data class MoodStat(val mood: String, val count: Int, val color: Color, val percentage: Float)
@@ -94,12 +95,15 @@ class StatsViewModel @Inject constructor(
     }
 
     private fun getDayFromTimestamp(timestamp: Long): Long {
-        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
+        val localTimeZone = TimeZone.getDefault()
+        val calendar = Calendar.getInstance(localTimeZone).apply {
+            timeInMillis = timestamp
+        }
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
-        return calendar.timeInMillis / (1000 * 60 * 60 * 24)
+        return calendar.timeInMillis / (1000 * 60 * 60 * 24) + 1  // TODO recheck day logic
     }
 
     private fun calculateMoodDistribution(notes: List<Note>): List<MoodStat> {
