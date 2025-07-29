@@ -312,10 +312,10 @@ fun MonthSection(calendar: Calendar, heatmapData: Map<Long, Int>) {
                                 val dayTimestamp = cellCalendar.timeInMillis / (1000 * 60 * 60 * 24)
                                 val entryCount = heatmapData[dayTimestamp] ?: 0
 
-                                val color = when {
-                                    entryCount == 0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                                    entryCount == 1 -> Color(0xFF69F0AE).copy(alpha = 0.6f)
-                                    entryCount == 2 -> Color(0xFF00E676).copy(alpha = 0.8f)
+                                val color = when (entryCount) {
+                                    0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                                    1 -> Color(0xFF69F0AE).copy(alpha = 0.6f)
+                                    2 -> Color(0xFF00E676).copy(alpha = 0.8f)
                                     else -> Color(0xFF00C853)
                                 }
 

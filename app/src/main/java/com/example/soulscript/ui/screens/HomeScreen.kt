@@ -67,7 +67,14 @@ fun HomeScreen(
                 item { RecentEntriesSection(notes = uiState.recentNotes, onNoteClick = onNoteClick) }
             }
 
-            item { QuoteOfTheDayCard() }
+            if (uiState.quoteOfTheDay.first.isNotBlank()) {
+                item {
+                    QuoteOfTheDayCard(
+                        quote = uiState.quoteOfTheDay.first,
+                        author = uiState.quoteOfTheDay.second
+                    )
+                }
+            }
         }
     }
 
@@ -196,9 +203,8 @@ fun RecentNoteCard(note: Note, onClick: () -> Unit) {
     }
 }
 
-
 @Composable
-fun QuoteOfTheDayCard() {
+fun QuoteOfTheDayCard(quote: String, author: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
@@ -215,7 +221,7 @@ fun QuoteOfTheDayCard() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "A Thought for Today",
+                    text = "A thought for today",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -223,12 +229,13 @@ fun QuoteOfTheDayCard() {
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "\"The journey of a thousand miles begins with a single step.\"",
+                text = quote,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "- Lao Tzu",
+                text = "- $author",
                 modifier = Modifier.align(Alignment.End),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)

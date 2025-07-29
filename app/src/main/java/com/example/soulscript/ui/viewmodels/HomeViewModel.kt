@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.soulscript.data.Note
 import com.example.soulscript.data.NoteRepository
+import com.example.soulscript.data.Quotes
 import com.example.soulscript.data.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,9 +17,10 @@ import java.util.Calendar
 import javax.inject.Inject
 
 data class HomeUiState(
-    val userName:String = " ",
+    val userName: String = " ",
     val recentNotes: List<Note> = emptyList(),
-    val onThisDayNote: Note? = null
+    val onThisDayNote: Note? = null,
+    val quoteOfTheDay: Pair<String, String> = "" to ""
 )
 
 @HiltViewModel
@@ -32,9 +34,18 @@ class HomeViewModel @Inject constructor(
             settingsManager.userNameFlow,
             repository.getAllNotes()
         ) { userName, allNotes ->
-            val recent = allNotes.take(5)
             val firstName = userName.split(" ").firstOrNull() ?: userName
-            HomeUiState(userName = firstName, recentNotes = recent)
+            val recent = allNotes.take(5)
+
+            val dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+            val quoteIndex = dayOfYear % Quotes.quoteList.size
+            val dailyQuote = Quotes.quoteList[quoteIndex]
+
+            HomeUiState(
+                userName = firstName,
+                recentNotes = recent,
+                quoteOfTheDay = dailyQuote
+            )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),

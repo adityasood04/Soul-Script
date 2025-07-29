@@ -272,9 +272,11 @@ fun DiaryPaper(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 200.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
                 .drawBehind {
-                    val lineHeight = 32.sp.toPx()
-                    var y = lineHeight * 1.5f
+                    val spacingPx = 36.sp.toPx()
+                    var y = spacingPx
+
                     while (y < size.height) {
                         drawLine(
                             color = linesColor,
@@ -282,23 +284,26 @@ fun DiaryPaper(
                             end = Offset(size.width, y),
                             strokeWidth = 1f
                         )
-                        y += lineHeight
+                        y += spacingPx
                     }
                 },
             textStyle = handwritingStyle.copy(
                 color = textColor.copy(alpha = 0.9f),
-                fontSize = 20.sp,
-                lineHeight = 32.sp
+                fontSize = 24.sp,
+                lineHeight = 36.sp
             ),
             cursorBrush = SolidColor(textColor),
             decorationBox = { innerTextField ->
-                Box(contentAlignment = Alignment.TopStart) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopStart
+                ) {
                     if (content.isEmpty()) {
                         Text(
                             "What's in your mind...",
                             style = handwritingStyle.copy(
-                                fontSize = 18.sp,
-                                lineHeight = 32.sp
+                                fontSize = 24.sp,
+                                lineHeight = 36.sp
                             ),
                             color = textColor.copy(alpha = 0.4f)
                         )
@@ -307,6 +312,7 @@ fun DiaryPaper(
                 }
             }
         )
+
     }
 }
 
