@@ -25,4 +25,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes_table WHERE id = :id")
     fun getNoteById(id: Int): Flow<Note>
+
+    @Query("SELECT * FROM notes_table WHERE strftime('%m-%d', date / 1000, 'unixepoch') = :monthDay ORDER BY date DESC")
+    fun getNotesOnThisDay(monthDay: String): Flow<List<Note>>
 }

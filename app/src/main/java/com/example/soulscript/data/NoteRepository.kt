@@ -23,4 +23,5 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     suspend fun deleteNote(note: Note) {
         noteDao.deleteNote(note)
     }
+    fun getNotesOnThisDay(monthDay: String): Flow<List<Note>> = noteDao.getNotesOnThisDay(monthDay)
 }
