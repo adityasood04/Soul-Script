@@ -26,6 +26,13 @@ val handwritingStyle = TextStyle(
     lineHeight = 30.sp,
     letterSpacing = 0.5.sp
 )
+val handwritingStyleLarge = TextStyle(
+    fontFamily = Caveat,
+    fontWeight = FontWeight.Bold,
+    fontSize = 32.sp,
+    lineHeight = 36.sp,
+    letterSpacing = 0.5.sp
+)
 
 val AppTypography = Typography(
     displayLarge = TextStyle(

@@ -4,12 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,8 +28,11 @@ fun SettingsScreen(
 ) {
     val theme by viewModel.theme.collectAsState()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
+    val userName by viewModel.userName.collectAsState()
+
     var showThemeDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
+    var showChangeNameDialog by remember { mutableStateOf(false) }
 
     if (showThemeDialog) {
         ThemeSelectionDialog(
@@ -46,6 +49,17 @@ fun SettingsScreen(
                 showClearDataDialog = false
             },
             onDismiss = { showClearDataDialog = false }
+        )
+    }
+
+    if (showChangeNameDialog) {
+        ChangeNameDialog(
+            currentName = userName,
+            onNameChange = { newName ->
+                viewModel.setUserName(newName)
+                showChangeNameDialog = false
+            },
+            onDismiss = { showChangeNameDialog = false }
         )
     }
 
@@ -66,6 +80,16 @@ fun SettingsScreen(
                 .fillMaxSize(),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
+            item {
+                SettingsSectionTitle("Account")
+                SettingClickableItem(
+                    icon = Icons.Default.AccountCircle,
+                    title = "Change Name",
+                    subtitle = userName,
+                    onClick = { showChangeNameDialog = true }
+                )
+            }
+
             item {
                 SettingsSectionTitle("Appearance")
                 SettingClickableItem(
@@ -244,6 +268,41 @@ private fun ClearDataConfirmationDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
                 Text("Delete")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+private fun ChangeNameDialog(
+    currentName: String,
+    onNameChange: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var newName by remember { mutableStateOf(currentName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change Your Name") },
+        text = {
+            OutlinedTextField(
+                value = newName,
+                onValueChange = { newName = it },
+                label = { Text("Name") },
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onNameChange(newName) },
+                enabled = newName.isNotBlank()
+            ) {
+                Text("Save")
             }
         },
         dismissButton = {

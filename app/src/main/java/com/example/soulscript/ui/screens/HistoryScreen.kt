@@ -28,7 +28,6 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    // This lambda will be used to navigate to the detail screen
     onNoteClick: (Int) -> Unit,
     viewModel: HistoryViewModel = hiltViewModel()
 ) {

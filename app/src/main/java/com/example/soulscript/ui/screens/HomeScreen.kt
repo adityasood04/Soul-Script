@@ -20,14 +20,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.soulscript.data.Note
+import com.example.soulscript.ui.screens.EmptyHistoryState
 import com.example.soulscript.ui.screens.NoteHistoryCard
 import com.example.soulscript.ui.theme.handwritingStyle
+import com.example.soulscript.ui.theme.handwritingStyleLarge
 import com.example.soulscript.ui.viewmodels.HomeViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onAddEntryClick: () -> Unit,
@@ -36,32 +39,50 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val onThisDayNote by viewModel.onThisDayNote.collectAsState()
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Soul Script", fontWeight = FontWeight.Bold, style = handwritingStyleLarge) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            item { GreetingSection(uiState.userName) }
+            item { AddEntryCard(onClick = onAddEntryClick) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        item { GreetingSection() }
-        item { AddEntryCard(onClick = onAddEntryClick) }
+            onThisDayNote?.let { note ->
+                item { OnThisDaySection(note = note, onClick = { onNoteClick(note.id) }) }
+            }
 
-        onThisDayNote?.let { note ->
-            item { OnThisDaySection(note = note, onClick = { onNoteClick(note.id) }) }
+            if (uiState.recentNotes.isNotEmpty()) {
+                item { RecentEntriesSection(notes = uiState.recentNotes, onNoteClick = onNoteClick) }
+            }
+
+            item { QuoteOfTheDayCard() }
         }
-
-        if (uiState.recentNotes.isNotEmpty()) {
-            item { RecentEntriesSection(notes = uiState.recentNotes, onNoteClick = onNoteClick) }
-        }
-
-        item { QuoteOfTheDayCard() }
     }
+
 }
 
 @Composable
-fun GreetingSection() {
+fun GreetingSection(userName: String) {
     Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+        val greeting = if (userName.isNotBlank()) {
+            "${getGreetingMessage()}, $userName"
+        } else {
+            getGreetingMessage()
+        }
         Text(
-            text = getGreetingMessage(),
+            text = greeting,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -147,7 +168,7 @@ fun RecentEntriesSection(notes: List<Note>, onNoteClick: (Int) -> Unit) {
 fun RecentNoteCard(note: Note, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier.width(220.dp),
+        modifier = Modifier.width(200.dp).height(200.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(Modifier.padding(16.dp)) {

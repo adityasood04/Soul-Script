@@ -6,6 +6,7 @@ import com.example.soulscript.data.NoteRepository
 import com.example.soulscript.data.SettingsManager
 import com.example.soulscript.data.ThemeOption
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -17,6 +18,8 @@ class SettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
     private val noteRepository: NoteRepository
 ) : ViewModel() {
+
+    val onboardingCompletedFlow: Flow<Boolean> = settingsManager.onboardingCompletedFlow
 
     val theme: StateFlow<ThemeOption> = settingsManager.themeFlow.stateIn(
         scope = viewModelScope,
@@ -39,6 +42,18 @@ class SettingsViewModel @Inject constructor(
     fun setNotificationsEnabled(isEnabled: Boolean) {
         viewModelScope.launch {
             settingsManager.setNotificationsEnabled(isEnabled)
+        }
+    }
+
+    val userName: StateFlow<String> = settingsManager.userNameFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
+
+    fun setUserName(name: String) {
+        viewModelScope.launch {
+            settingsManager.setUserName(name)
         }
     }
 

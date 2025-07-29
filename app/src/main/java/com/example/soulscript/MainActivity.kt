@@ -8,6 +8,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -16,9 +17,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.soulscript.data.SettingsManager
 import com.example.soulscript.data.ThemeOption
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
@@ -37,8 +37,10 @@ import com.example.soulscript.screens.DiaryEntryScreen
 import com.example.soulscript.screens.HomeScreen
 import com.example.soulscript.screens.StatsScreen
 import com.example.soulscript.ui.screens.HistoryScreen
+import com.example.soulscript.ui.screens.NameEntryScreen
 import com.example.soulscript.ui.screens.NoteDetailScreen
 import com.example.soulscript.ui.screens.SettingsScreen
+import com.example.soulscript.ui.screens.WelcomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
 import com.example.soulscript.ui.viewmodels.SettingsViewModel
@@ -58,7 +60,37 @@ class MainActivity : ComponentActivity() {
                     ThemeOption.System -> isSystemInDarkTheme()
                 }
             ) {
-                MainScreen()
+                // This is now the root of your application's UI
+                RootNavigation()
+            }
+        }
+    }
+}
+
+@Composable
+fun RootNavigation(
+    settingsViewModel: SettingsViewModel = hiltViewModel()
+) {
+    val onboardingCompleted by settingsViewModel.onboardingCompletedFlow.collectAsState(initial = null)
+
+    when (onboardingCompleted) {
+        null -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        true -> {
+            MainScreen()
+        }
+        false -> {
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = "welcome") {
+                composable("welcome") {
+                    WelcomeScreen(onNavigateToNext = { navController.navigate("name_entry") })
+                }
+                composable("name_entry") {
+                    NameEntryScreen()
+                }
             }
         }
     }
@@ -118,10 +150,10 @@ fun MainScreen() {
             composable(Routes.Home) {
                 HomeScreen(
                     onAddEntryClick = {
-                        navController.navigate(Routes.DiaryEntry)
+                        navController.navigate("diary_entry")
                     },
                     onNoteClick = { noteId ->
-                        navController.navigate("note_detail//$noteId")
+                        navController.navigate("note_detail/$noteId")
                     }
                 )
             }
@@ -138,10 +170,8 @@ fun MainScreen() {
                 DiaryEntryScreen(
                     onNavigateBack = { navController.popBackStack() },
                     viewModel = diaryEntryViewModel,
-                    onSaveNote = {
-                        Toast.makeText(context, "Note saved successfully", Toast.LENGTH_SHORT).show()
-                        navController.popBackStack() 
-                    }
+                    onSaveNote = { navController.popBackStack()
+                        Toast.makeText(context, "Your note has been saved", Toast.LENGTH_SHORT).show()}
                 )
             }
 
@@ -159,8 +189,4 @@ fun MainScreen() {
             }
         }
     }
-
 }
-
-
-
