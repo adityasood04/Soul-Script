@@ -181,10 +181,7 @@ fun MainScreen() {
                 arguments = listOf(navArgument("noteId") { type = NavType.IntType })
             ) {
                 NoteDetailScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToEdit = { noteId ->
-                        // TODO : Add edit feature
-                    }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }

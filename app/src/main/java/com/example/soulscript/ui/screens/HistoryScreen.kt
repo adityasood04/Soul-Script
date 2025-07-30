@@ -42,8 +42,7 @@ fun HistoryScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-        },
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+        }
     ) { paddingValues ->
         if (historyUiState.noteList.isEmpty()) {
             EmptyHistoryState(modifier = Modifier.padding(paddingValues))

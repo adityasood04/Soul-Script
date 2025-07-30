@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ChevronRight
@@ -82,8 +83,7 @@ fun SettingsScreen(
                 viewModel.resetExportState()
             }
 
-            else -> { /* Idle or InProgress */
-            }
+            else -> {}
         }
     }
 
@@ -371,9 +371,10 @@ private fun ClearDataConfirmationDialog(
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Delete")
+                Text("Delete", color = MaterialTheme.colorScheme.onError)
             }
         },
         dismissButton = {
