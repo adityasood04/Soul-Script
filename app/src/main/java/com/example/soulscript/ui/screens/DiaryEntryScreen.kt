@@ -1,5 +1,6 @@
 package com.example.soulscript.screens
 
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,6 +68,7 @@ fun DiaryEntryScreen(
     var content by remember { mutableStateOf("") }
     var selectedMood by remember { mutableStateOf(moodOptions.first()) }
 
+    val context = LocalContext.current
     val fixedForegroundColor = Color.White.copy(alpha = 0.9f)
 
     Box(
@@ -90,10 +93,15 @@ fun DiaryEntryScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                viewModel.saveEntry(title, content, selectedMood.label)
-                                onSaveNote()
-                            },
-                            enabled = title.isNotBlank() && content.isNotBlank()
+                                if(title.isEmpty()){
+                                    Toast.makeText(context, "Please add a title", Toast.LENGTH_SHORT).show()
+                                } else if(content.isEmpty()){
+                                    Toast.makeText(context, "Please add the content", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    viewModel.saveEntry(title, content, selectedMood.label)
+                                    onSaveNote()
+                                }
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
@@ -211,7 +219,7 @@ fun DiaryPaper(
             value = content,
             onValueChange = onContentChange,
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .drawBehind {
                     val spacingPx = 36.sp.toPx()
                     var y = spacingPx
@@ -220,7 +228,7 @@ fun DiaryPaper(
                             color = linesColor,
                             start = Offset(0f, y),
                             end = Offset(size.width, y),
-                            strokeWidth = 1f
+                            strokeWidth = 1.5f
                         )
                         y += spacingPx
                     }
