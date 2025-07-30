@@ -60,7 +60,6 @@ class MainActivity : ComponentActivity() {
                     ThemeOption.System -> isSystemInDarkTheme()
                 }
             ) {
-                // This is now the root of your application's UI
                 RootNavigation()
             }
         }

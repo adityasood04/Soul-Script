@@ -1,5 +1,6 @@
 package com.example.soulscript.ui.screens
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -68,6 +69,7 @@ fun SettingsScreen(
     var showClearDataDialog by remember { mutableStateOf(false) }
     var showChangeNameDialog by remember { mutableStateOf(false) }
 
+
     val context = LocalContext.current
 
     LaunchedEffect(exportState) {
@@ -90,6 +92,7 @@ fun SettingsScreen(
 
     if (showThemeDialog) {
         ThemeSelectionDialog(
+            context = context,
             currentTheme = theme,
             onThemeSelected = { viewModel.setTheme(it) },
             onDismiss = { showThemeDialog = false }
@@ -150,7 +153,10 @@ fun SettingsScreen(
                     icon = Icons.Default.DarkMode,
                     title = "Theme",
                     subtitle = theme.name,
-                    onClick = { showThemeDialog = true }
+                    onClick = {
+                        showThemeDialog = true
+
+                    }
                 )
             }
 
@@ -161,7 +167,9 @@ fun SettingsScreen(
                     title = "Daily Reminder",
                     subtitle = if (notificationsEnabled) "Enabled" else "Disabled",
                     checked = notificationsEnabled,
-                    onCheckedChange = { viewModel.setNotificationsEnabled(it) }
+                    onCheckedChange = {
+                        Toast.makeText(context, "Coming soon", Toast.LENGTH_SHORT).show()
+                    }
                 )
             }
 
@@ -179,7 +187,7 @@ fun SettingsScreen(
                     enabled = !isLoading,
                     isLoading = isLoading,
                     progress = progress,
-                    onClick = { viewModel.exportJournal(context) }
+                    onClick = { Toast.makeText(context, "Coming soon", Toast.LENGTH_SHORT).show() }
                 )
                 SettingClickableItem(
                     icon = Icons.Default.DeleteForever,
@@ -320,7 +328,8 @@ fun SettingInfoItem(title: String, subtitle: String) {
 private fun ThemeSelectionDialog(
     currentTheme: ThemeOption,
     onThemeSelected: (ThemeOption) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    context: Context
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -342,6 +351,8 @@ private fun ThemeSelectionDialog(
                             selected = currentTheme == theme,
                             onClick = {
                                 onThemeSelected(theme)
+                                Toast.makeText(context, "Might experience issues in light theme!!", Toast.LENGTH_SHORT)
+                                    .show()
                                 onDismiss()
                             }
                         )
