@@ -94,7 +94,11 @@ fun SettingsScreen(
         ThemeSelectionDialog(
             context = context,
             currentTheme = theme,
-            onThemeSelected = { viewModel.setTheme(it) },
+            onThemeSelected = {
+                viewModel.setTheme(it)
+                if(it == ThemeOption.Light)
+                    Toast.makeText(context, "Light mode is having issues...", Toast.LENGTH_SHORT).show()
+            },
             onDismiss = { showThemeDialog = false }
         )
     }
@@ -352,7 +356,11 @@ private fun ThemeSelectionDialog(
                             selected = currentTheme == theme,
                             onClick = {
                                 onThemeSelected(theme)
-                                Toast.makeText(context, "Might experience issues in light theme!!", Toast.LENGTH_SHORT)
+                                Toast.makeText(
+                                    context,
+                                    "Might experience issues in light theme!!",
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
                                 onDismiss()
                             }

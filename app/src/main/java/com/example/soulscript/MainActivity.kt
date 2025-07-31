@@ -82,7 +82,7 @@ fun RootNavigation(
                 Image(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(100.dp)
                 )
             }
         }
