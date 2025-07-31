@@ -28,4 +28,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes_table WHERE strftime('%m-%d', date / 1000, 'unixepoch') = :monthDay ORDER BY date DESC")
     fun getNotesOnThisDay(monthDay: String): Flow<List<Note>>
+
+    @Query("DELETE FROM notes_table")
+    suspend fun deleteAllNotes()
 }

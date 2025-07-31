@@ -84,7 +84,7 @@ class SettingsViewModel @Inject constructor(
 
     fun clearAllData() {
         viewModelScope.launch {
-            println("All data cleared!")
+            noteRepository.deleteAllNotes()
         }
     }
 }

@@ -103,6 +103,7 @@ fun SettingsScreen(
         ClearDataConfirmationDialog(
             onConfirm = {
                 viewModel.clearAllData()
+                Toast.makeText(context, "All data has been cleared", Toast.LENGTH_SHORT).show()
                 showClearDataDialog = false
             },
             onDismiss = { showClearDataDialog = false }
