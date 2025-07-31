@@ -16,7 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Download
@@ -48,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,6 +74,7 @@ fun SettingsScreen(
 
 
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(exportState) {
         when (exportState) {
@@ -201,9 +205,20 @@ fun SettingsScreen(
                     onClick = { showClearDataDialog = true }
                 )
             }
-
             item {
-                SettingsSectionTitle("About")
+                SettingsSectionTitle("Links & Info")
+                SettingClickableItem(
+                    icon = Icons.Default.AlternateEmail,
+                    title = "Contact Developer",
+                    subtitle = "Find me on X (formerly Twitter)",
+                    onClick = { uriHandler.openUri("https://x.com/adityasood04") }
+                )
+                SettingClickableItem(
+                    icon = Icons.Default.Code,
+                    title = "Source Code",
+                    subtitle = "View the project on GitHub",
+                    onClick = { uriHandler.openUri("https://github.com/adityasood04/Soul-Script/") }
+                )
                 SettingInfoItem(title = "App Version", subtitle = "1.0.0")
             }
         }
