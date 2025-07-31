@@ -103,6 +103,7 @@ fun FeatureHighlight(icon: ImageVector, title: String, subtitle: String) {
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
