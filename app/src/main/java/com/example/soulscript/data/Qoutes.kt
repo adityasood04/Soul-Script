@@ -4,7 +4,7 @@ object Quotes {
     val quoteList = listOf(
         "The pessimist sees difficulty in every opportunity. The optimist sees opportunity in every difficulty." to "Winston Churchill",
         "Don't let yesterday take up too much of today." to "Will Rogers",
-        "You learn more from failure than from success. Don’t let it stop you. Failure builds character." to "Unknown",
+        "The only limit to our realization of tomorrow will be our doubts of today." to "Franklin D. Roosevelt",
         "The best way to get started is to quit talking and begin doing." to "Walt Disney",
         "It’s not whether you get knocked down, it’s whether you get up." to "Vince Lombardi",
         "If you are working on something that you really care about, you don’t have to be pushed. The vision pulls you." to "Steve Jobs",
@@ -15,7 +15,6 @@ object Quotes {
         "Imagine your life is perfect in every respect; what would it look like?" to "Brian Tracy",
         "We generate fears while we sit. We overcome them by action." to "Dr. Henry Link",
         "Whether you think you can or think you can’t, you’re right." to "Henry Ford",
-        "The only limit to our realization of tomorrow will be our doubts of today." to "Franklin D. Roosevelt",
         "Creativity is intelligence having fun." to "Albert Einstein",
         "What you lack in talent can be made up with desire, hustle and giving 110% all the time." to "Don Zimmer",
         "Do what you can with all you have, wherever you are." to "Theodore Roosevelt",
@@ -31,6 +30,7 @@ object Quotes {
         "It’s hard to beat a person who never gives up." to "Babe Ruth",
         "If you want to live a happy life, tie it to a goal, not to people or things." to "Albert Einstein",
         "Your time is limited, so don’t waste it living someone else’s life." to "Steve Jobs",
-        "The whole secret of a successful life is to find out what is one’s destiny to do, and then do it." to "Henry Ford"
+        "The whole secret of a successful life is to find out what is one’s destiny to do, and then do it." to "Henry Ford",
+        "You learn more from failure than from success. Don’t let it stop you. Failure builds character." to "Unknown"
     )
 }

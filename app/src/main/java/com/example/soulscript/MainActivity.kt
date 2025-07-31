@@ -149,21 +149,21 @@ fun MainScreen() {
             composable(Routes.Home) {
                 HomeScreen(
                     onAddEntryClick = {
-                        navController.navigate("diary_entry")
+                        navController.navigate(Routes.DiaryEntry)
                     },
                     onNoteClick = { noteId ->
-                        navController.navigate("note_detail/$noteId")
+                        navController.navigate("${Routes.NoteDetail}/${noteId}")
                     }
                 )
             }
             composable(Routes.History) {
                 HistoryScreen(onNoteClick = {noteId->
-                    navController.navigate("note_detail/$noteId")
+                    navController.navigate("${Routes.NoteDetail}/${noteId}")
                 })
             }
             composable(Routes.Stats) { StatsScreen() }
             composable(Routes.Settings) { SettingsScreen() }
-            composable("diary_entry") {
+            composable(Routes.DiaryEntry) {
                 val diaryEntryViewModel: DiaryEntryViewModel = hiltViewModel()
 
                 DiaryEntryScreen(
@@ -174,9 +174,8 @@ fun MainScreen() {
                 )
             }
 
-
             composable(
-                route = "note_detail/{noteId}",
+                route = "${Routes.NoteDetail}/{noteId}",
                 arguments = listOf(navArgument("noteId") { type = NavType.IntType })
             ) {
                 NoteDetailScreen(
