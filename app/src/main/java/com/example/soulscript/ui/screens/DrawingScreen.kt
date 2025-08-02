@@ -277,10 +277,25 @@ private fun createPaint(color: Color, strokeWidth: Float): android.graphics.Pain
 }
 
 private fun saveBitmapAsImage(context: Context, bitmap: Bitmap): File? {
-    val file = File(context.filesDir, "sketch_${System.currentTimeMillis()}.png")
+    val maxDimension = 1080
+    val originalWidth = bitmap.width
+    val originalHeight = bitmap.height
+    val scaledWidth: Int
+    val scaledHeight: Int
+
+    if (originalWidth > originalHeight) {
+        scaledWidth = maxDimension
+        scaledHeight = (originalHeight.toFloat() / originalWidth.toFloat() * maxDimension).toInt()
+    } else {
+        scaledHeight = maxDimension
+        scaledWidth = (originalWidth.toFloat() / originalHeight.toFloat() * maxDimension).toInt()
+    }
+
+    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
+    val file = File(context.filesDir, "sketch_${System.currentTimeMillis()}.jpg")
     return try {
         FileOutputStream(file).use { fos ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 60, fos)
         }
         file
     } catch (e: Exception) {
