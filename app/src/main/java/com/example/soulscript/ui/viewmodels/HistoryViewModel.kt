@@ -16,10 +16,6 @@ class HistoryViewModel @Inject constructor(
     repository: NoteRepository
 ) : ViewModel() {
 
-    /**
-     * Holds history screen UI state.
-     * The data is retrieved from the repository and mapped to the UI state.
-     */
     val historyUiState: StateFlow<HistoryUiState> =
         repository.getAllNotes().map { HistoryUiState(it) }
             .stateIn(
@@ -29,7 +25,5 @@ class HistoryViewModel @Inject constructor(
             )
 }
 
-/**
- * Represents the UI state for the History screen.
- */
+
 data class HistoryUiState(val noteList: List<Note> = listOf())
