@@ -7,4 +7,5 @@ object Routes {
     const val Settings = "settings"
     const val DiaryEntry = "diary_entry"
     const val NoteDetail = "note_detail"
+    const val Drawing = "drawing"
 }
