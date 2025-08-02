@@ -2,6 +2,7 @@ package com.example.soulscript.screens
 
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,6 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,21 +26,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.soulscript.ui.theme.Poppins
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.theme.handwritingStyle
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -62,14 +71,21 @@ val moodOptions = listOf(
 fun DiaryEntryScreen(
     onNavigateBack: () -> Unit,
     viewModel: DiaryEntryViewModel,
-    onSaveNote: () -> Unit
+    onSaveNote: () -> Unit,
+    onNavigateToDrawing: () -> Unit,
+    sketchPath: String?
 ) {
-    var title by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
-    var selectedMood by remember { mutableStateOf(moodOptions.first()) }
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(sketchPath) {
+        if (sketchPath != null) {
+            viewModel.onSketchPathChange(sketchPath)
+        }
+    }
 
     val context = LocalContext.current
     val fixedForegroundColor = Color.White.copy(alpha = 0.9f)
+    val selectedMood = uiState.mood
 
     Box(
         modifier = Modifier
@@ -93,12 +109,12 @@ fun DiaryEntryScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                if(title.isEmpty()){
+                                if(uiState.title.isBlank()){
                                     Toast.makeText(context, "Please add a title", Toast.LENGTH_SHORT).show()
-                                } else if(content.isEmpty()){
+                                } else if(uiState.content.isBlank()){
                                     Toast.makeText(context, "Please add the content", Toast.LENGTH_SHORT).show()
                                 } else {
-                                    viewModel.saveEntry(title, content, selectedMood.label)
+                                    viewModel.saveEntry()
                                     onSaveNote()
                                 }
                             }
@@ -127,23 +143,23 @@ fun DiaryEntryScreen(
                 MoodSelector(
                     moods = moodOptions,
                     selectedMood = selectedMood,
-                    onMoodSelected = { selectedMood = it },
+                    onMoodSelected = { viewModel.onMoodChange(it) },
                     textColor = fixedForegroundColor
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                        .defaultMinSize(minHeight = 400.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
                     DiaryPaper(
-                        title = title,
-                        onTitleChange = { title = it },
-                        content = content,
-                        onContentChange = { content = it }
+                        title = uiState.title,
+                        onTitleChange = { viewModel.onTitleChange(it) },
+                        content = uiState.content,
+                        onContentChange = { viewModel.onContentChange(it) },
+                        sketchPath = uiState.sketchPath,
+                        onAttachSketchClick = onNavigateToDrawing,
+                        onRemoveSketchClick = { viewModel.onSketchPathChange(null) }
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -158,6 +174,9 @@ fun DiaryPaper(
     onTitleChange: (String) -> Unit,
     content: String,
     onContentChange: (String) -> Unit,
+    sketchPath: String?,
+    onAttachSketchClick: () -> Unit,
+    onRemoveSketchClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val paperColor = MaterialTheme.colorScheme.surface
@@ -167,7 +186,7 @@ fun DiaryPaper(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .shadow(
                 elevation = 16.dp,
                 shape = RoundedCornerShape(12.dp),
@@ -189,6 +208,9 @@ fun DiaryPaper(
             value = title,
             onValueChange = onTitleChange,
             modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Next
+            ),
             textStyle = MaterialTheme.typography.titleLarge.copy(
                 color = onPaperColor,
                 fontWeight = FontWeight.SemiBold
@@ -215,11 +237,59 @@ fun DiaryPaper(
             thickness = 1.dp
         )
 
+        if (sketchPath != null) {
+            Box {
+                AsyncImage(
+                    model = File(sketchPath),
+                    contentDescription = "Attached Sketch",
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onAttachSketchClick() }
+                )
+                IconButton(
+                    onClick = onRemoveSketchClick,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .background(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                            CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Remove Sketch",
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+        } else {
+            OutlinedButton(
+                onClick = onAttachSketchClick,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    Icons.Default.Brush,
+                    contentDescription = "Brush",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("Attach a Sketch", color = MaterialTheme.colorScheme.primary)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         BasicTextField(
             value = content,
             onValueChange = onContentChange,
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 300.dp)
                 .drawBehind {
                     val spacingPx = 36.sp.toPx()
                     var y = spacingPx
