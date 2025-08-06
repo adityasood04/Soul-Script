@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.soulscript.data.NoteRepository
 import com.example.soulscript.data.SettingsManager
 import com.example.soulscript.data.ThemeOption
+import com.example.soulscript.utils.AlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -85,6 +86,24 @@ class SettingsViewModel @Inject constructor(
     fun clearAllData() {
         viewModelScope.launch {
             noteRepository.deleteAllNotes()
+        }
+    }
+
+    val reminderTime: StateFlow<Pair<Int, Int>> = settingsManager.reminderTimeFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 20 to 0
+    )
+
+    fun setReminder(context: Context, isEnabled: Boolean, hour: Int, minute: Int) {
+        viewModelScope.launch {
+            settingsManager.setNotificationsEnabled(isEnabled)
+            settingsManager.setReminderTime(hour, minute)
+            if (isEnabled) {
+                AlarmScheduler.scheduleReminder(context, hour, minute)
+            } else {
+                AlarmScheduler.cancelReminder(context)
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,6 +28,9 @@ class SettingsManager @Inject constructor(@ApplicationContext private val contex
     private val notificationsKey = booleanPreferencesKey("enable_notifications")
     private val userNameKey = stringPreferencesKey("user_name")
     private val onboardingCompletedKey = booleanPreferencesKey("onboarding_completed")
+
+    private val reminderHourKey = intPreferencesKey("reminder_hour")
+    private val reminderMinuteKey = intPreferencesKey("reminder_minute")
 
     val themeFlow: Flow<ThemeOption> = context.dataStore.data.map { preferences ->
         ThemeOption.valueOf(preferences[themeKey] ?: ThemeOption.System.name)
@@ -66,6 +70,19 @@ class SettingsManager @Inject constructor(@ApplicationContext private val contex
     suspend fun setUserName(name: String) {
         context.dataStore.edit { settings ->
             settings[userNameKey] = name
+        }
+    }
+
+    val reminderTimeFlow: Flow<Pair<Int, Int>> = context.dataStore.data.map { preferences ->
+        val hour = preferences[reminderHourKey] ?: 20 // Default to 8 PM (20:00)
+        val minute = preferences[reminderMinuteKey] ?: 0
+        Pair(hour, minute)
+    }
+
+    suspend fun setReminderTime(hour: Int, minute: Int) {
+        context.dataStore.edit { settings ->
+            settings[reminderHourKey] = hour
+            settings[reminderMinuteKey] = minute
         }
     }
 }

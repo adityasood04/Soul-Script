@@ -1,51 +1,17 @@
-package com.example.soulscript.ui.screens
+package com.example.soulscript.screens
 
-import android.content.Context
+import android.Manifest
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.AlternateEmail
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,10 +19,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.soulscript.data.ThemeOption
 import com.example.soulscript.ui.viewmodels.ExportState
 import com.example.soulscript.ui.viewmodels.SettingsViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,42 +37,64 @@ fun SettingsScreen(
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
     val userName by viewModel.userName.collectAsState()
     val exportState by viewModel.exportState.collectAsState()
+    val reminderTime by viewModel.reminderTime.collectAsState()
 
     var showThemeDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
     var showChangeNameDialog by remember { mutableStateOf(false) }
-
+    var showTimePicker by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                viewModel.setReminder(context, true, reminderTime.first, reminderTime.second)
+            } else {
+                Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = reminderTime.first,
+        initialMinute = reminderTime.second,
+        is24Hour = false
+    )
+
+    if (showTimePicker) {
+        TimePickerDialog(
+            onDismissRequest = { showTimePicker = false },
+            onConfirm = {
+                viewModel.setReminder(context, true, timePickerState.hour, timePickerState.minute)
+                showTimePicker = false
+            }
+        ) {
+            TimePicker(state = timePickerState)
+        }
+    }
+
     LaunchedEffect(exportState) {
         when (exportState) {
             ExportState.Success -> {
-                Toast.makeText(context, "Journal exported to Downloads folder", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(context, "Journal exported to Downloads folder", Toast.LENGTH_LONG).show()
                 viewModel.resetExportState()
             }
-
             ExportState.Error -> {
                 Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
                 viewModel.resetExportState()
             }
-
-            else -> {}
+            else -> { /* Idle or InProgress */ }
         }
     }
 
 
     if (showThemeDialog) {
         ThemeSelectionDialog(
-            context = context,
             currentTheme = theme,
-            onThemeSelected = {
-                viewModel.setTheme(it)
-                if(it == ThemeOption.Light)
-                    Toast.makeText(context, "Light mode is having issues...", Toast.LENGTH_SHORT).show()
-            },
+            onThemeSelected = { viewModel.setTheme(it) },
             onDismiss = { showThemeDialog = false }
         )
     }
@@ -111,7 +103,6 @@ fun SettingsScreen(
         ClearDataConfirmationDialog(
             onConfirm = {
                 viewModel.clearAllData()
-                Toast.makeText(context, "All data has been cleared", Toast.LENGTH_SHORT).show()
                 showClearDataDialog = false
             },
             onDismiss = { showClearDataDialog = false }
@@ -162,10 +153,7 @@ fun SettingsScreen(
                     icon = Icons.Default.DarkMode,
                     title = "Theme",
                     subtitle = theme.name,
-                    onClick = {
-                        showThemeDialog = true
-
-                    }
+                    onClick = { showThemeDialog = true }
                 )
             }
 
@@ -174,12 +162,28 @@ fun SettingsScreen(
                 SettingSwitchItem(
                     icon = Icons.Default.Notifications,
                     title = "Daily Reminder",
-                    subtitle = if (notificationsEnabled) "Enabled" else "Disabled",
+                    subtitle = if (notificationsEnabled) "Enabled at ${formatTime(reminderTime.first, reminderTime.second)}" else "Disabled",
                     checked = notificationsEnabled,
-                    onCheckedChange = {
-                        Toast.makeText(context, "Coming soon", Toast.LENGTH_SHORT).show()
+                    onCheckedChange = { isEnabled ->
+                        if (isEnabled) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                viewModel.setReminder(context, true, reminderTime.first, reminderTime.second)
+                            }
+                        } else {
+                            viewModel.setReminder(context, false, reminderTime.first, reminderTime.second)
+                        }
                     }
                 )
+                if (notificationsEnabled) {
+                    SettingClickableItem(
+                        icon = Icons.Default.Schedule,
+                        title = "Reminder Time",
+                        subtitle = formatTime(reminderTime.first, reminderTime.second),
+                        onClick = { showTimePicker = true }
+                    )
+                }
             }
 
             item {
@@ -196,7 +200,7 @@ fun SettingsScreen(
                     enabled = !isLoading,
                     isLoading = isLoading,
                     progress = progress,
-                    onClick = { Toast.makeText(context, "Coming soon", Toast.LENGTH_SHORT).show() }
+                    onClick = { viewModel.exportJournal(context) }
                 )
                 SettingClickableItem(
                     icon = Icons.Default.DeleteForever,
@@ -205,21 +209,22 @@ fun SettingsScreen(
                     onClick = { showClearDataDialog = true }
                 )
             }
+
             item {
                 SettingsSectionTitle("Links & Info")
                 SettingClickableItem(
                     icon = Icons.Default.AlternateEmail,
                     title = "Contact Developer",
                     subtitle = "Find me on X (formerly Twitter)",
-                    onClick = { uriHandler.openUri("https://x.com/adityasood04") }
+                    onClick = { uriHandler.openUri("https://twitter.com/your_x_handle") }
                 )
                 SettingClickableItem(
                     icon = Icons.Default.Code,
                     title = "Source Code",
                     subtitle = "View the project on GitHub",
-                    onClick = { uriHandler.openUri("https://github.com/adityasood04/Soul-Script/") }
+                    onClick = { uriHandler.openUri("https://github.com/your_github_repo") }
                 )
-                SettingInfoItem(title = "App Version", subtitle = "1.1.0")
+                SettingInfoItem(title = "App Version", subtitle = "1.2.0")
             }
         }
     }
@@ -256,25 +261,19 @@ fun SettingClickableItem(
         Icon(
             imageVector = icon,
             contentDescription = title,
-            tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface.copy(
-                alpha = 0.38f
-            )
+            tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (enabled) LocalContentColor.current else LocalContentColor.current.copy(
-                    alpha = 0.38f
-                )
+                color = if (enabled) LocalContentColor.current else LocalContentColor.current.copy(alpha = 0.38f)
             )
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                    alpha = 0.38f
-                )
+                color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
             )
         }
         if (isLoading) {
@@ -283,11 +282,7 @@ fun SettingClickableItem(
                 modifier = Modifier.size(24.dp)
             )
         } else if (enabled) {
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -307,19 +302,11 @@ fun SettingSwitchItem(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Icon(imageVector = icon, contentDescription = title, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
@@ -335,11 +322,7 @@ fun SettingInfoItem(title: String, subtitle: String) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -348,8 +331,7 @@ fun SettingInfoItem(title: String, subtitle: String) {
 private fun ThemeSelectionDialog(
     currentTheme: ThemeOption,
     onThemeSelected: (ThemeOption) -> Unit,
-    onDismiss: () -> Unit,
-    context: Context
+    onDismiss: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -371,12 +353,6 @@ private fun ThemeSelectionDialog(
                             selected = currentTheme == theme,
                             onClick = {
                                 onThemeSelected(theme)
-                                Toast.makeText(
-                                    context,
-                                    "Might experience issues in light theme!!",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
                                 onDismiss()
                             }
                         )
@@ -406,10 +382,9 @@ private fun ClearDataConfirmationDialog(
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                shape = RoundedCornerShape(8.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Delete", color = MaterialTheme.colorScheme.onError)
+                Text("Delete")
             }
         },
         dismissButton = {
@@ -453,4 +428,46 @@ private fun ChangeNameDialog(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimePickerDialog(
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                content()
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(onClick = onConfirm) {
+                        Text("OK")
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun formatTime(hour: Int, minute: Int): String {
+    val calendar = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE, minute)
+    }
+    return SimpleDateFormat("h:mm a", Locale.getDefault()).format(calendar.time)
 }
