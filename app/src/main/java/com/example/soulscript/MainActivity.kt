@@ -39,11 +39,11 @@ import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
 import com.example.soulscript.screens.DiaryEntryScreen
 import com.example.soulscript.screens.DrawingScreen
-import com.example.soulscript.screens.HomeScreen
 import com.example.soulscript.screens.NoteDetailScreen
 import com.example.soulscript.screens.SettingsScreen
 import com.example.soulscript.screens.StatsScreen
 import com.example.soulscript.ui.screens.HistoryScreen
+import com.example.soulscript.ui.screens.HomeScreen
 import com.example.soulscript.ui.screens.NameEntryScreen
 import com.example.soulscript.ui.screens.WelcomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
