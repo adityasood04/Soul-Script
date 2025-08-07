@@ -1,6 +1,7 @@
 package com.example.soulscript.screens
 
 import android.Manifest
+import android.content.Context
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -93,6 +94,7 @@ fun SettingsScreen(
 
     if (showThemeDialog) {
         ThemeSelectionDialog(
+            context = context,
             currentTheme = theme,
             onThemeSelected = { viewModel.setTheme(it) },
             onDismiss = { showThemeDialog = false }
@@ -200,7 +202,7 @@ fun SettingsScreen(
                     enabled = !isLoading,
                     isLoading = isLoading,
                     progress = progress,
-                    onClick = { viewModel.exportJournal(context) }
+                    onClick = { Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show() }
                 )
                 SettingClickableItem(
                     icon = Icons.Default.DeleteForever,
@@ -216,13 +218,13 @@ fun SettingsScreen(
                     icon = Icons.Default.AlternateEmail,
                     title = "Contact Developer",
                     subtitle = "Find me on X (formerly Twitter)",
-                    onClick = { uriHandler.openUri("https://twitter.com/your_x_handle") }
+                    onClick = { uriHandler.openUri("https://x.com/adityasood04") }
                 )
                 SettingClickableItem(
                     icon = Icons.Default.Code,
                     title = "Source Code",
                     subtitle = "View the project on GitHub",
-                    onClick = { uriHandler.openUri("https://github.com/your_github_repo") }
+                    onClick = { uriHandler.openUri("https://github.com/adityasood04/Soul-Script") }
                 )
                 SettingInfoItem(title = "App Version", subtitle = "1.2.0")
             }
@@ -329,6 +331,7 @@ fun SettingInfoItem(title: String, subtitle: String) {
 
 @Composable
 private fun ThemeSelectionDialog(
+    context: Context,
     currentTheme: ThemeOption,
     onThemeSelected: (ThemeOption) -> Unit,
     onDismiss: () -> Unit
@@ -343,6 +346,9 @@ private fun ThemeSelectionDialog(
                         Modifier
                             .fillMaxWidth()
                             .clickable {
+                                if (theme == ThemeOption.Light) {
+                                    Toast.makeText(context, "May experience issues with light mode", Toast.LENGTH_SHORT).show()
+                                }
                                 onThemeSelected(theme)
                                 onDismiss()
                             }
