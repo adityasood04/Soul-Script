@@ -6,8 +6,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.soulscript.data.NoteRepository
-import com.example.soulscript.data.SettingsManager
-import com.example.soulscript.data.ThemeOption
+import com.example.soulscript.utils.SettingsManager
+import com.example.soulscript.utils.ThemeOption
 import com.example.soulscript.utils.AlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*

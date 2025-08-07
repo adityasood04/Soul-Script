@@ -1,4 +1,4 @@
-package com.example.soulscript.data
+package com.example.soulscript.utils
 
 import android.content.Context
 import androidx.datastore.core.DataStore

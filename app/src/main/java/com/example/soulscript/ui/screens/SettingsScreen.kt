@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.soulscript.data.ThemeOption
+import com.example.soulscript.utils.ThemeOption
 import com.example.soulscript.ui.viewmodels.ExportState
 import com.example.soulscript.ui.viewmodels.SettingsViewModel
 import java.text.SimpleDateFormat

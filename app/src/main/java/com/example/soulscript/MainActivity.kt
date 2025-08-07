@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,8 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.soulscript.data.SettingsManager
-import com.example.soulscript.data.ThemeOption
+import com.example.soulscript.utils.ThemeOption
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
 import com.example.soulscript.screens.DiaryEntryScreen
