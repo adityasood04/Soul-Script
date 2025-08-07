@@ -4,20 +4,22 @@
 </p>
 <h1 align="center">SoulScript</h1>
 
-
-A modern, mindful, and beautifully designed journaling app for Android, built with Jetpack Compose. **SoulScript** is your private, digital space for reflection and growth. It's designed to provide a seamless and engaging writing experience, helping you capture your thoughts, track your moods, and discover patterns in your daily life.
+<p align="center">
+A modern, mindful, and beautifully designed journaling app for Android, built with Jetpack Compose.<br> <b>SoulScript</b> is your private, digital space for reflection and growth. It's designed to provide a seamless and engaging writing experience, helping you capture your thoughts, track your moods, and discover patterns in your daily life.
+</p>
 
 ---
+
 ## App screenshots
-<img width="4000" height="5000" alt="mockup-min" src="https://github.com/user-attachments/assets/0c4ccf39-82fc-4921-9d3a-b0bfc241c7a3" />
+<img width="3820" height="7847" alt="v1 2 0-min" src="https://github.com/user-attachments/assets/8c6f1c2a-6b82-4d9b-a19a-9b6ebbf8a64f" />
 
 ## Key Features
-
 
 - **Personalized Experience:** A warm, personalized onboarding flow and a daily greeting that uses your name.
 
 - **Engaging Home Screen:**
   - "On This Day" memory
+
   - Recent Entries
   - Inspiring Quote of the Day
 
@@ -50,12 +52,9 @@ A modern, mindful, and beautifully designed journaling app for Android, built wi
 
 ## Upcoming Features
 
-- Daily Reminders: Set a custom daily notification to remind you to write.
-- Canvas based writing area.
 - PDF & Text Export: Export your entire journal for backup or sharing.
 - Calendar View: See your entries on a calendar to easily find notes from a specific day.
 - Photo Attachments: Add images to your journal entries.
-- Full Text Search: Quickly search through all your entries.
 
 ---
 
