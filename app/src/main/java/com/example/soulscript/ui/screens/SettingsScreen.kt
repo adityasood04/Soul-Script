@@ -2,6 +2,7 @@ package com.example.soulscript.screens
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.soulscript.utils.ThemeOption
 import com.example.soulscript.ui.viewmodels.ExportState
 import com.example.soulscript.ui.viewmodels.SettingsViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -47,6 +49,7 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -76,18 +79,33 @@ fun SettingsScreen(
             TimePicker(state = timePickerState)
         }
     }
-
+    val scope = rememberCoroutineScope()
     LaunchedEffect(exportState) {
-        when (exportState) {
-            ExportState.Success -> {
-                Toast.makeText(context, "Journal exported to Downloads folder", Toast.LENGTH_LONG).show()
+        when (val state = exportState) {
+            is ExportState.Success -> {
+                scope.launch {
+                    val result = snackbarHostState.showSnackbar(
+                        message = "Journal exported successfully",
+                        actionLabel = "Open",
+                        duration = SnackbarDuration.Long
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        val openIntent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(state.fileUri, "application/pdf")
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        }
+                        context.startActivity(openIntent)
+                    }
+                }
                 viewModel.resetExportState()
             }
-            ExportState.Error -> {
-                Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+            is ExportState.Error -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Export failed")
+                }
                 viewModel.resetExportState()
             }
-            else -> { /* Idle or InProgress */ }
+            else -> {}
         }
     }
 
@@ -123,6 +141,7 @@ fun SettingsScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Settings", fontWeight = FontWeight.Bold) },
@@ -202,7 +221,7 @@ fun SettingsScreen(
                     enabled = !isLoading,
                     isLoading = isLoading,
                     progress = progress,
-                    onClick = { Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show() }
+                    onClick = { viewModel.exportJournal(context, userName) }
                 )
                 SettingClickableItem(
                     icon = Icons.Default.DeleteForever,
@@ -347,7 +366,7 @@ private fun ThemeSelectionDialog(
                             .fillMaxWidth()
                             .clickable {
                                 if (theme == ThemeOption.Light) {
-                                    Toast.makeText(context, "May experience issues with light mode", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "May experience issues with light mode\\\\\\\\", Toast.LENGTH_SHORT).show()
                                 }
                                 onThemeSelected(theme)
                                 onDismiss()

@@ -3,6 +3,7 @@ package com.example.soulscript.ui.viewmodels
 import com.example.soulscript.utils.PdfExporter
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.soulscript.data.NoteRepository
@@ -17,7 +18,7 @@ import javax.inject.Inject
 sealed class ExportState {
     object Idle : ExportState()
     data class InProgress(val progress: Float) : ExportState()
-    object Success : ExportState()
+    data class Success(val fileUri: Uri) : ExportState()
     object Error : ExportState()
 }
 
@@ -68,14 +69,14 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun exportJournal(context: Context) {
+    fun exportJournal(context: Context, userName: String) {
         viewModelScope.launch {
             _exportState.value = ExportState.InProgress(0f)
             val notes = noteRepository.getAllNotes().first()
-            val success = PdfExporter.exportToPdf(context, notes) { progress ->
+            val uri = PdfExporter.exportToPdf(context, notes, userName) { progress ->
                 _exportState.value = ExportState.InProgress(progress)
             }
-            _exportState.value = if (success) ExportState.Success else ExportState.Error
+            _exportState.value = if (uri != null) ExportState.Success(fileUri = uri) else ExportState.Error
         }
     }
 
