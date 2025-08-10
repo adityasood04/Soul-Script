@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.soulscript.data.Note
 import com.example.soulscript.data.NoteRepository
-import com.example.soulscript.screens.moodOptions
+import com.example.soulscript.ui.screens.moodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

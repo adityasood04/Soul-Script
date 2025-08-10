@@ -1,4 +1,4 @@
-package com.example.soulscript.screens
+package com.example.soulscript.ui.screens
 
 import android.content.Context
 import android.graphics.Bitmap

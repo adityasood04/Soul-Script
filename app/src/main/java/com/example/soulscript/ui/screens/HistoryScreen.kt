@@ -1,6 +1,5 @@
 package com.example.soulscript.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,7 +17,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.soulscript.data.Note
-import com.example.soulscript.screens.moodOptions
 import com.example.soulscript.ui.theme.handwritingStyle
 import com.example.soulscript.ui.viewmodels.HistoryViewModel
 import java.text.SimpleDateFormat

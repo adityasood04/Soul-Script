@@ -2,7 +2,6 @@ package com.example.soulscript
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -36,10 +35,10 @@ import androidx.navigation.navArgument
 import com.example.soulscript.utils.ThemeOption
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
-import com.example.soulscript.screens.DiaryEntryScreen
-import com.example.soulscript.screens.DrawingScreen
-import com.example.soulscript.screens.NoteDetailScreen
-import com.example.soulscript.screens.StatsScreen
+import com.example.soulscript.ui.screens.DiaryEntryScreen
+import com.example.soulscript.ui.screens.DrawingScreen
+import com.example.soulscript.ui.screens.NoteDetailScreen
+import com.example.soulscript.ui.screens.StatsScreen
 import com.example.soulscript.ui.screens.HistoryScreen
 import com.example.soulscript.ui.screens.HomeScreen
 import com.example.soulscript.ui.screens.LockScreen

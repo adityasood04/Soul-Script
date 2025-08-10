@@ -1,4 +1,4 @@
-package com.example.soulscript.screens
+package com.example.soulscript.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.soulscript.ui.screens.moodOptions
 import com.example.soulscript.ui.viewmodels.MoodStat
 import com.example.soulscript.ui.viewmodels.StatsViewModel
 import kotlinx.coroutines.launch

@@ -1,11 +1,12 @@
 package com.example.soulscript.ui.viewmodels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.soulscript.data.Note
 import com.example.soulscript.data.NoteRepository
-import com.example.soulscript.screens.Mood
-import com.example.soulscript.screens.moodOptions
+import com.example.soulscript.ui.screens.Mood
+import com.example.soulscript.ui.screens.moodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,12 +24,25 @@ data class DiaryEntryUiState(
 
 @HiltViewModel
 class DiaryEntryViewModel @Inject constructor(
-    private val repository: NoteRepository
+    private val repository: NoteRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DiaryEntryUiState())
     val uiState: StateFlow<DiaryEntryUiState> = _uiState.asStateFlow()
 
+    init {
+        val initialTitle: String? = savedStateHandle["templateTitle"]
+        val initialContent: String? = savedStateHandle["templateContent"]
+        if (initialTitle != null || initialContent != null) {
+            _uiState.update {
+                it.copy(
+                    title = initialTitle ?: "",
+                    content = initialContent ?: ""
+                )
+            }
+        }
+    }
     fun onTitleChange(newTitle: String) {
         _uiState.update { it.copy(title = newTitle) }
     }

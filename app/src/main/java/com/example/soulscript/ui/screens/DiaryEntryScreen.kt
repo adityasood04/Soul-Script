@@ -1,8 +1,7 @@
-package com.example.soulscript.screens
+package com.example.soulscript.ui.screens
 
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,8 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -43,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.soulscript.ui.theme.Poppins
-import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.theme.handwritingStyle
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
 import java.io.File
@@ -70,6 +65,7 @@ val moodOptions = listOf(
 @Composable
 fun DiaryEntryScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToTemplates: () -> Unit,
     viewModel: DiaryEntryViewModel,
     onSaveNote: () -> Unit,
     onNavigateToDrawing: () -> Unit,
@@ -159,6 +155,7 @@ fun DiaryEntryScreen(
                         onContentChange = { viewModel.onContentChange(it) },
                         sketchPath = uiState.sketchPath,
                         onAttachSketchClick = onNavigateToDrawing,
+                        onNavigateToTemplates=onNavigateToTemplates,
                         onRemoveSketchClick = { viewModel.onSketchPathChange(null) }
                     )
                 }
@@ -177,6 +174,7 @@ fun DiaryPaper(
     sketchPath: String?,
     onAttachSketchClick: () -> Unit,
     onRemoveSketchClick: () -> Unit,
+    onNavigateToTemplates: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val paperColor = MaterialTheme.colorScheme.surface
@@ -266,19 +264,33 @@ fun DiaryPaper(
                 }
             }
         } else {
-            OutlinedButton(
-                onClick = onAttachSketchClick,
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+//            OutlinedButton(
+//                onClick = onAttachSketchClick,
+//                shape = RoundedCornerShape(12.dp),
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Icon(
+//                    Icons.Default.Brush,
+//                    contentDescription = "Brush",
+//                    tint = MaterialTheme.colorScheme.primary,
+//                    modifier = Modifier.size(ButtonDefaults.IconSize)
+//                )
+//                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+//                Text("Attach a Sketch", color = MaterialTheme.colorScheme.primary)
+//            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Brush,
-                    contentDescription = "Brush",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                )
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text("Attach a Sketch", color = MaterialTheme.colorScheme.primary)
+                OutlinedButton(onClick = onAttachSketchClick) {
+                    Icon(Icons.Default.Brush, contentDescription = "Brush", modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text("Attach Sketch", color = MaterialTheme.colorScheme.primary)
+                }
+                TextButton(onClick = onNavigateToTemplates) { // Add this parameter to DiaryPaper
+                    Text("Use a Template")
+                }
             }
         }
 

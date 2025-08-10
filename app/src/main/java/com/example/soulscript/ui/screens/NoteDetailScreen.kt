@@ -1,4 +1,4 @@
-package com.example.soulscript.screens
+package com.example.soulscript.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -9,7 +9,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SentimentVerySatisfied
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.soulscript.data.Note
+import com.example.soulscript.ui.screens.moodOptions
 import com.example.soulscript.ui.theme.handwritingStyle
 import com.example.soulscript.ui.viewmodels.NoteDetailViewModel
 import java.io.File
