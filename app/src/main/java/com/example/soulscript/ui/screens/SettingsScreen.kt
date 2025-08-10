@@ -1,4 +1,4 @@
-package com.example.soulscript.screens
+package com.example.soulscript.ui.screens
 
 import android.Manifest
 import android.content.Context
@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,15 +43,18 @@ fun SettingsScreen(
     val userName by viewModel.userName.collectAsState()
     val exportState by viewModel.exportState.collectAsState()
     val reminderTime by viewModel.reminderTime.collectAsState()
+    val lockEnabled by viewModel.lockEnabled.collectAsState()
 
     var showThemeDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
     var showChangeNameDialog by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showPasscodeDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    val snackbarHostState = remember { SnackbarHostState() }
+
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -139,6 +144,15 @@ fun SettingsScreen(
             onDismiss = { showChangeNameDialog = false }
         )
     }
+    if (showPasscodeDialog) {
+        PasscodeEntryDialog(
+            onDismiss = { showPasscodeDialog = false },
+            onConfirm = { passcode ->
+                viewModel.setLockSettings(true, passcode)
+                showPasscodeDialog = false
+            }
+        )
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -168,6 +182,22 @@ fun SettingsScreen(
                 )
             }
 
+            item {
+                SettingsSectionTitle("Security")
+                SettingSwitchItem(
+                    icon = Icons.Default.Lock,
+                    title = "App Lock",
+                    subtitle = if (lockEnabled) "Enabled" else "Disabled",
+                    checked = lockEnabled,
+                    onCheckedChange = { isEnabled ->
+                        if (isEnabled) {
+                            showPasscodeDialog = true
+                        } else {
+                            viewModel.setLockSettings(false)
+                        }
+                    }
+                )
+            }
             item {
                 SettingsSectionTitle("Appearance")
                 SettingClickableItem(
@@ -487,6 +517,41 @@ private fun TimePickerDialog(
             }
         }
     }
+}
+
+
+@Composable
+private fun PasscodeEntryDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var passcode by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Set a 4-Digit Passcode") },
+        text = {
+            OutlinedTextField(
+                value = passcode,
+                onValueChange = { if (it.length <= 4) passcode = it.filter { char -> char.isDigit() } },
+                label = { Text("Passcode") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(passcode) },
+                enabled = passcode.length == 4
+            ) {
+                Text("Set")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 private fun formatTime(hour: Int, minute: Int): String {
