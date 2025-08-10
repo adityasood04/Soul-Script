@@ -51,6 +51,12 @@ class SettingsViewModel @Inject constructor(
     private val _exportState = MutableStateFlow<ExportState>(ExportState.Idle)
     val exportState: StateFlow<ExportState> = _exportState.asStateFlow()
 
+    val lockEnabled: StateFlow<Boolean> = settingsManager.lockEnabledFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
     fun setTheme(themeOption: ThemeOption) {
         viewModelScope.launch {
             settingsManager.setTheme(themeOption)
@@ -105,6 +111,12 @@ class SettingsViewModel @Inject constructor(
             } else {
                 AlarmScheduler.cancelReminder(context)
             }
+        }
+    }
+
+    fun setLockSettings(isEnabled: Boolean, passcode: String? = null) {
+        viewModelScope.launch {
+            settingsManager.setLockSettings(isEnabled, passcode)
         }
     }
 }
