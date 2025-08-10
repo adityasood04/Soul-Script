@@ -12,7 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,7 +81,7 @@ fun LockScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Enter Passcode", style = MaterialTheme.typography.headlineSmall)
+        Text("Enter Passcode", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(24.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -110,7 +112,11 @@ fun LockScreen(
                         Button(
                             onClick = { if (enteredPasscode.length < 4) enteredPasscode += number },
                             modifier = Modifier.size(72.dp),
-                            shape = CircleShape
+                            shape = CircleShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
                         ) {
                             Text(number.toString(), fontSize = 20.sp)
                         }
@@ -131,7 +137,9 @@ fun LockScreen(
                         },
                         modifier = Modifier.size(72.dp)
                     ) {
-                        Icon(Icons.Default.Fingerprint, contentDescription = "Use Biometrics", modifier = Modifier.size(36.dp))
+                        Icon(Icons.Default.Fingerprint, contentDescription = "Use Biometrics", modifier = Modifier.size(36.dp),
+                            MaterialTheme.colorScheme.primary
+                        )
                     }
                 } else {
                     Spacer(Modifier.size(72.dp))
@@ -139,7 +147,11 @@ fun LockScreen(
                 Button(
                     onClick = { if (enteredPasscode.length < 4) enteredPasscode += 0 },
                     modifier = Modifier.size(72.dp),
-                    shape = CircleShape
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 ) {
                     Text("0", fontSize = 20.sp)
                 }
@@ -147,7 +159,8 @@ fun LockScreen(
                     onClick = { enteredPasscode = enteredPasscode.dropLast(1) },
                     modifier = Modifier.size(72.dp)
                 ) {
-                    Icon(Icons.Default.Backspace, contentDescription = "Backspace", modifier = Modifier.size(36.dp))
+                    Icon(Icons.Default.Backspace, contentDescription = "Backspace", modifier = Modifier.size(36.dp),
+                        MaterialTheme.colorScheme.primary)
                 }
             }
         }
