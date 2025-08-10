@@ -48,6 +48,14 @@ class SettingsManager @Inject constructor(@ApplicationContext private val contex
         preferences[onboardingCompletedKey] ?: false
     }
 
+    val lockEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[lockEnabledKey] ?: false
+    }
+
+    val passcodeFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[passcodeKey]
+    }
+
     suspend fun setTheme(theme: ThemeOption) {
         context.dataStore.edit { settings ->
             settings[themeKey] = theme.name
@@ -83,6 +91,15 @@ class SettingsManager @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { settings ->
             settings[reminderHourKey] = hour
             settings[reminderMinuteKey] = minute
+        }
+    }
+
+    suspend fun setLockSettings(isEnabled: Boolean, passcode: String? = null) {
+        context.dataStore.edit { settings ->
+            settings[lockEnabledKey] = isEnabled
+            if (passcode != null) {
+                settings[passcodeKey] = passcode
+            }
         }
     }
 }
