@@ -91,4 +91,7 @@ dependencies {
 
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.datastore.preferences)
+
+    //biometric
+    implementation("androidx.biometric:biometric:1.4.0-alpha02")
 }
