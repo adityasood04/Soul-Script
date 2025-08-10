@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -38,11 +39,12 @@ import com.example.soulscript.navigation.navigationItems
 import com.example.soulscript.screens.DiaryEntryScreen
 import com.example.soulscript.screens.DrawingScreen
 import com.example.soulscript.screens.NoteDetailScreen
-import com.example.soulscript.screens.SettingsScreen
 import com.example.soulscript.screens.StatsScreen
 import com.example.soulscript.ui.screens.HistoryScreen
 import com.example.soulscript.ui.screens.HomeScreen
+import com.example.soulscript.ui.screens.LockScreen
 import com.example.soulscript.ui.screens.NameEntryScreen
+import com.example.soulscript.ui.screens.SettingsScreen
 import com.example.soulscript.ui.screens.WelcomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
@@ -50,7 +52,7 @@ import com.example.soulscript.ui.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -74,6 +76,8 @@ fun RootNavigation(
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val onboardingCompleted by settingsViewModel.onboardingCompletedFlow.collectAsState(initial = null)
+    val lockEnabled by settingsViewModel.lockEnabled.collectAsState()
+    var isUnlocked by remember { mutableStateOf(false) }
 
     when (onboardingCompleted) {
         null -> {
@@ -86,7 +90,11 @@ fun RootNavigation(
             }
         }
         true -> {
-            MainScreen()
+            if (lockEnabled && !isUnlocked) {
+                LockScreen(onUnlock = { isUnlocked = true })
+            } else {
+                MainScreen()
+            }
         }
         false -> {
             val navController = rememberNavController()
