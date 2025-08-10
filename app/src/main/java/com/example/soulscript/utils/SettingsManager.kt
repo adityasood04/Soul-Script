@@ -31,6 +31,8 @@ class SettingsManager @Inject constructor(@ApplicationContext private val contex
 
     private val reminderHourKey = intPreferencesKey("reminder_hour")
     private val reminderMinuteKey = intPreferencesKey("reminder_minute")
+    private val lockEnabledKey = booleanPreferencesKey("lock_enabled")
+    private val passcodeKey = stringPreferencesKey("passcode")
 
     val themeFlow: Flow<ThemeOption> = context.dataStore.data.map { preferences ->
         ThemeOption.valueOf(preferences[themeKey] ?: ThemeOption.System.name)
