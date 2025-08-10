@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -543,7 +544,7 @@ private fun PasscodeEntryDialog(
                 onClick = { onConfirm(passcode) },
                 enabled = passcode.length == 4
             ) {
-                Text("Set")
+                Text("Set", color = Color.Black)
             }
         },
         dismissButton = {
