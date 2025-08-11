@@ -1,6 +1,6 @@
 package com.example.soulscript.ui.screens
 
-import android.util.Log
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,8 +9,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.soulscript.data.JournalTemplate
 import com.example.soulscript.data.Templates
@@ -24,7 +27,7 @@ fun TemplatesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Choose a Template") },
+                title = { Text("Guided Journaling") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -38,15 +41,25 @@ fun TemplatesScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(Templates.templateList) { template ->
-                TemplateCard(
-                    template = template,
-                    onClick = {
-                        onTemplateSelected(template.title, template.content)
-                    }
-                )
+            Templates.templateCategories.forEach { category ->
+                item {
+                    Text(
+                        text = category.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
+                    )
+                }
+                items(category.templates) { template ->
+                    TemplateCard(
+                        template = template,
+                        onClick = {
+                            onTemplateSelected(template.title, template.content)
+                        }
+                    )
+                }
             }
         }
     }
@@ -61,19 +74,29 @@ fun TemplateCard(template: JournalTemplate, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = template.title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = template.icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(40.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = template.content.replace("\n", " ").trim(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = template.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = template.description.trim(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
