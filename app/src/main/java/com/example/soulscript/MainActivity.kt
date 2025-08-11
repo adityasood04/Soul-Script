@@ -1,7 +1,9 @@
 package com.example.soulscript
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -44,14 +46,18 @@ import com.example.soulscript.ui.screens.HomeScreen
 import com.example.soulscript.ui.screens.LockScreen
 import com.example.soulscript.ui.screens.NameEntryScreen
 import com.example.soulscript.ui.screens.SettingsScreen
+import com.example.soulscript.ui.screens.TemplatesScreen
 import com.example.soulscript.ui.screens.WelcomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
 import com.example.soulscript.ui.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @AndroidEntryPoint
-class MainActivity : FragmentActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -109,6 +115,7 @@ fun RootNavigation(
     }
 }
 
+val TAG = "Adi"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,6 +174,9 @@ fun MainScreen() {
                     },
                     onNoteClick = { noteId ->
                         navController.navigate("${Routes.NoteDetail}/${noteId}")
+                    },
+                    onGuidedJournalingClick = {
+                        navController.navigate(Routes.Templates)
                     }
                 )
             }
@@ -179,17 +189,29 @@ fun MainScreen() {
             composable(Routes.Settings) { SettingsScreen() }
 
             composable(
-                route = "${Routes.DiaryEntry}?sketchPath={sketchPath}",
-                arguments = listOf(navArgument("sketchPath") { nullable = true; type = NavType.StringType })
+                route = "${Routes.DiaryEntry}?templateTitle={templateTitle}&templateContent={templateContent}&sketchPath={sketchPath}",
+                arguments = listOf(
+                    navArgument("templateTitle") { nullable = true; type = NavType.StringType },
+                    navArgument("templateContent") { nullable = true; type = NavType.StringType },
+                    navArgument("sketchPath") { nullable = true; type = NavType.StringType }
+                )
             ) { backStackEntry ->
                 val diaryEntryViewModel: DiaryEntryViewModel = hiltViewModel()
                 val sketchPath = backStackEntry.savedStateHandle.get<String>("sketchPath")
+                val encodedTitle = backStackEntry.arguments?.getString("templateTitle")
+                val encodedContent = backStackEntry.arguments?.getString("templateContent")
 
+                Log.i(TAG, "Received : $encodedTitle $encodedContent")
+                diaryEntryViewModel.onParametersReceived(
+                    encodedTitle?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) },
+                    encodedContent?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                )
                 DiaryEntryScreen(
                     onNavigateBack = { navController.popBackStack() },
                     viewModel = diaryEntryViewModel,
                     onSaveNote = {
-                        Toast.makeText(context, "Note saved successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Note saved successfully", Toast.LENGTH_SHORT)
+                            .show()
                         navController.popBackStack()
                     },
                     onNavigateToDrawing = { navController.navigate(Routes.Drawing) },
@@ -197,6 +219,18 @@ fun MainScreen() {
                 )
             }
 
+            composable(Routes.Templates) {
+                TemplatesScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onTemplateSelected = { title, content ->
+                        Log.i("Adi", "Template: $title $content")
+                        val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                        val encodedContent = URLEncoder.encode(content, StandardCharsets.UTF_8.toString())
+                        val sketchPath = null;
+                        navController.navigate("${Routes.DiaryEntry}?templateTitle=$encodedTitle&templateContent=$encodedContent&sketchPath=$sketchPath")
+                    }
+                )
+            }
             composable(Routes.Drawing) {
                 DrawingScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -217,6 +251,9 @@ fun MainScreen() {
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+
+
         }
     }
+
 }

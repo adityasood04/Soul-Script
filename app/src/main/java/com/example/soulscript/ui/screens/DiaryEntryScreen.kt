@@ -65,7 +65,6 @@ val moodOptions = listOf(
 @Composable
 fun DiaryEntryScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToTemplates: () -> Unit,
     viewModel: DiaryEntryViewModel,
     onSaveNote: () -> Unit,
     onNavigateToDrawing: () -> Unit,
@@ -155,7 +154,6 @@ fun DiaryEntryScreen(
                         onContentChange = { viewModel.onContentChange(it) },
                         sketchPath = uiState.sketchPath,
                         onAttachSketchClick = onNavigateToDrawing,
-                        onNavigateToTemplates=onNavigateToTemplates,
                         onRemoveSketchClick = { viewModel.onSketchPathChange(null) }
                     )
                 }
@@ -174,7 +172,6 @@ fun DiaryPaper(
     sketchPath: String?,
     onAttachSketchClick: () -> Unit,
     onRemoveSketchClick: () -> Unit,
-    onNavigateToTemplates: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val paperColor = MaterialTheme.colorScheme.surface
@@ -264,34 +261,21 @@ fun DiaryPaper(
                 }
             }
         } else {
-//            OutlinedButton(
-//                onClick = onAttachSketchClick,
-//                shape = RoundedCornerShape(12.dp),
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                Icon(
-//                    Icons.Default.Brush,
-//                    contentDescription = "Brush",
-//                    tint = MaterialTheme.colorScheme.primary,
-//                    modifier = Modifier.size(ButtonDefaults.IconSize)
-//                )
-//                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-//                Text("Attach a Sketch", color = MaterialTheme.colorScheme.primary)
-//            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            OutlinedButton(
+                onClick = onAttachSketchClick,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedButton(onClick = onAttachSketchClick) {
-                    Icon(Icons.Default.Brush, contentDescription = "Brush", modifier = Modifier.size(ButtonDefaults.IconSize))
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("Attach Sketch", color = MaterialTheme.colorScheme.primary)
-                }
-                TextButton(onClick = onNavigateToTemplates) { // Add this parameter to DiaryPaper
-                    Text("Use a Template")
-                }
+                Icon(
+                    Icons.Default.Brush,
+                    contentDescription = "Brush",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("Attach a Sketch", color = MaterialTheme.colorScheme.primary)
             }
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -34,6 +34,7 @@ import java.util.Locale
 fun HomeScreen(
     onAddEntryClick: () -> Unit,
     onNoteClick: (Int) -> Unit,
+    onGuidedJournalingClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -56,7 +57,9 @@ fun HomeScreen(
         ) {
             item { GreetingSection(uiState.userName) }
             item { AddEntryCard(onClick = onAddEntryClick) }
-
+            item {
+                GuidedJournalingCard(onClick = onGuidedJournalingClick)
+            }
             onThisDayNote?.let { note ->
                 item { OnThisDaySection(note = note, onClick = { onNoteClick(note.id) }) }
             }
@@ -76,6 +79,48 @@ fun HomeScreen(
         }
     }
 
+}
+
+
+@Composable
+fun GuidedJournalingCard(onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.AutoStories,
+                contentDescription = "Guided Journaling",
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Guided Journaling",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+                Text(
+                    text = "Need inspiration? Try a template.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        }
+    }
 }
 
 @Composable

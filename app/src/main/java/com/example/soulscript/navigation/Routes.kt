@@ -8,4 +8,5 @@ object Routes {
     const val DiaryEntry = "diary_entry"
     const val NoteDetail = "note_detail"
     const val Drawing = "drawing"
+    const val Templates = "templates"
 }

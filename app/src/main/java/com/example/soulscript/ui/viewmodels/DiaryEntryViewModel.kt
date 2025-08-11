@@ -1,5 +1,6 @@
 package com.example.soulscript.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,7 +26,7 @@ data class DiaryEntryUiState(
 @HiltViewModel
 class DiaryEntryViewModel @Inject constructor(
     private val repository: NoteRepository,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DiaryEntryUiState())
@@ -34,6 +35,7 @@ class DiaryEntryViewModel @Inject constructor(
     init {
         val initialTitle: String? = savedStateHandle["templateTitle"]
         val initialContent: String? = savedStateHandle["templateContent"]
+        Log.i("Adi", initialContent.toString())
         if (initialTitle != null || initialContent != null) {
             _uiState.update {
                 it.copy(
@@ -57,6 +59,15 @@ class DiaryEntryViewModel @Inject constructor(
 
     fun onSketchPathChange(newPath: String?) {
         _uiState.update { it.copy(sketchPath = newPath) }
+    }
+
+    fun onParametersReceived(title:String?, content:String?){
+        _uiState.update {
+            it.copy(
+                title = title ?: "",
+                content = content ?: ""
+            )
+        }
     }
 
     fun saveEntry() {
