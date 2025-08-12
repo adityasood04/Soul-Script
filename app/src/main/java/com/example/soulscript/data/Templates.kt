@@ -4,6 +4,8 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Nightlight
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class JournalTemplate(
@@ -45,6 +47,23 @@ object Templates {
                     description = "Define your ambitions and the steps to achieve them.",
                     content = "My main goal for this week is:\n\n\nThe first step I will take to achieve it is:\n\n\nI am excited about this goal because:\n\n",
                     icon = Icons.Default.Lightbulb
+                ),
+                JournalTemplate(
+                    title = "Weekly Review",
+                    description = "Look back at your week to plan for the next.",
+                    content = "What was my biggest win this week?\n\n\nWhat was my biggest challenge?\n\n\nWhat will I focus on next week?\n\n",
+                    icon = Icons.Default.SelfImprovement
+                )
+            )
+        ),
+        TemplateCategory(
+            title = "Mindfulness & Well-being",
+            templates = listOf(
+                JournalTemplate(
+                    title = "Mindful Moment",
+                    description = "Check in with yourself and your senses.",
+                    content = "Right now, I can see:\n\n\nRight now, I can hear:\n\n\nRight now, I can feel:\n\n\nHow does my body feel at this moment?\n\n",
+                    icon = Icons.Default.Psychology
                 ),
                 JournalTemplate(
                     title = "A Moment of Self-Care",

@@ -291,7 +291,7 @@ fun QuoteOfTheDayCard(quote: String, author: String) {
             Text(
                 text = quote,
                 style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Start,
                 modifier = Modifier
                     .padding(vertical = 8.dp)
                     .fillMaxWidth(),
