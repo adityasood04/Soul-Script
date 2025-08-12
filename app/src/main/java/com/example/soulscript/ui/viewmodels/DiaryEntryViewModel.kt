@@ -12,6 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,25 +34,14 @@ class DiaryEntryViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DiaryEntryUiState())
     val uiState: StateFlow<DiaryEntryUiState> = _uiState.asStateFlow()
 
-    init {
-        val initialTitle: String? = savedStateHandle["templateTitle"]
-        val initialContent: String? = savedStateHandle["templateContent"]
-        Log.i("Adi", initialContent.toString())
-        if (initialTitle != null || initialContent != null) {
-            _uiState.update {
-                it.copy(
-                    title = initialTitle ?: "",
-                    content = initialContent ?: ""
-                )
-            }
-        }
-    }
     fun onTitleChange(newTitle: String) {
         _uiState.update { it.copy(title = newTitle) }
+        savedStateHandle["currentTitle"] = newTitle
     }
 
     fun onContentChange(newContent: String) {
         _uiState.update { it.copy(content = newContent) }
+        savedStateHandle["currentContent"] = newContent
     }
 
     fun onMoodChange(newMood: Mood) {
@@ -61,11 +52,11 @@ class DiaryEntryViewModel @Inject constructor(
         _uiState.update { it.copy(sketchPath = newPath) }
     }
 
-    fun onParametersReceived(title:String?, content:String?){
+    fun onParametersReceived(title: String?, content: String?) {
         _uiState.update {
             it.copy(
-                title = title ?: "",
-                content = content ?: ""
+                title = it.title.ifBlank { title ?: "" },
+                content = it.content.ifBlank { content ?: "" }
             )
         }
     }
