@@ -57,7 +57,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
