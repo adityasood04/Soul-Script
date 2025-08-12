@@ -1,64 +1,104 @@
-
 <p align="center">
-  <img width="100" height="100" alt="logo_round" src="https://github.com/user-attachments/assets/518c018c-2710-4152-9b46-c637aa952eff" />
+  <img src="https://github.com/user-attachments/assets/518c018c-2710-4152-9b46-c637aa952eff" alt="SoulScript Logo" width="120" height="120"/>
 </p>
+
 <h1 align="center">SoulScript</h1>
 
 <p align="center">
-A modern, mindful, and beautifully designed journaling app for Android, built with Jetpack Compose.<br> <b>SoulScript</b> is your private, digital space for reflection and growth. It's designed to provide a seamless and engaging writing experience, helping you capture your thoughts, track your moods, and discover patterns in your daily life.
+  <i>A modern, mindful, and beautifully designed journaling app for Android — built with Jetpack Compose.</i><br>
+  Your private space for reflection, growth, and self-discovery.
+</p>
+
+<p align="center">
+  <a href="https://github.com/adityasood04/Soul-Script/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/adityasood04/Soul-Script?color=blue" alt="License"/>
+  </a>
+  <a href="https://github.com/adityasood04/Soul-Script/stargazers">
+    <img src="https://img.shields.io/github/stars/adityasood04/Soul-Script?style=social" alt="Stars"/>
+  </a>
+  <img src="https://img.shields.io/badge/Platform-Android-green?logo=android"/>
+  <img src="https://img.shields.io/badge/Language-Kotlin-purple?logo=kotlin"/>
 </p>
 
 ---
 
-## App screenshots
-<img width="3820" height="7847" alt="v1 2 0-min" src="https://github.com/user-attachments/assets/8c6f1c2a-6b82-4d9b-a19a-9b6ebbf8a64f" />
-
-## Key Features
-
-- **Personalized Experience:** A warm, personalized onboarding flow and a daily greeting that uses your name.
-
-- **Engaging Home Screen:**
-  - "On This Day" memory
-
-  - Recent Entries
-  - Inspiring Quote of the Day
-
-- **Mood-Based Writing:** Select your mood to set a dynamic, gradient background for a unique writing atmosphere.
-
-- **Insightful Statistics:**
-  - **Writing Streak:** Tracks your consecutive days of writing to keep you motivated.
-  - **Activity Heatmap:** A GitHub-style heatmap that visualizes your consistency over the past year.
-  - **Charts:** A mood distribution pie chart and a monthly entries bar chart for a quick visual summary.
-
-- **Robust Data Management:**
-  - Entries are stored securely on-device using Room.
-  - View full history, manage entries, and clear data when needed.
+## 📑 Table of Contents
+- [Overview](#-overview)
+- [Screenshots](#-screenshots)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Upcoming Features](#-upcoming-features)
+- [Getting Started](#-getting-started)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
-## Tech Stack & Architecture
+## 📌 Overview
+**SoulScript** is a beautifully crafted journaling app designed to help you document your thoughts, track your mood, and visualize your personal growth — all while keeping your data secure on-device.
+
+---
+
+## 📷 Screenshots
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8c6f1c2a-6b82-4d9b-a19a-9b6ebbf8a64f" alt="SoulScript UI" width="100%"/>
+</p>
+
+---
+
+## ✨ Features
+
+### 1️⃣ Personalized & Engaging Experience
+- Warm onboarding flow with **daily greetings** using your name.
+- Home screen featuring:
+  -  **On This Day** memories
+  -  Recent entries
+  -  Inspiring **Quote of the Day**
+- Customizable daily reminders for consistent journaling.
+
+### 2️⃣ Expressive Journaling
+- Dynamic, gradient backgrounds based on **selected mood**.
+- Attach sketches with a **lag-free Drawing Canvas**:
+  -  Eraser
+  -  Color picker
+  -  Undo
+
+### 3️⃣ Powerful History & Insights
+- Search past entries with **full-text search** and **date filters**.
+- Visualize habits with:
+  -  Writing streak tracker
+  -  GitHub-style activity heatmap
+  -  Mood distribution charts
+
+### 4️⃣ Security & Data Management
+-  Passcode & Biometric Lock (Fingerprint/Face ID).
+-  Data stored securely **on-device** via Room.
+-  Export entries to a **beautifully formatted PDF** with custom fonts and headers.
+
+---
+
+## 🛠 Tech Stack
 
 | Category               | Technology / Pattern                |
-|------------------------|-------------------------------------|
-| **UI**                 | Jetpack Compose                     |
-| **Architecture**       | MVVM (Model-View-ViewModel)         |
-| **Dependency Injection** | Hilt                             |
-| **Local Storage**      | Room Database                       |
-| **Settings/Preferences** | Jetpack DataStore                |
-| **Asynchronous**       | Kotlin Coroutines & Flow            |
-| **Navigation**         | Jetpack Navigation Compose          |
+|------------------------|--------------------------------------|
+| **UI**                 | Jetpack Compose                      |
+| **Architecture**       | MVVM (Model-View-ViewModel)          |
+| **Dependency Injection** | Hilt                               |
+| **Local Storage**      | Room Database                        |
+| **Preferences**        | Jetpack DataStore                    |
+| **Async**              | Kotlin Coroutines & Flow             |
+| **Navigation**         | Jetpack Navigation Compose           |
 
 ---
 
-## Upcoming Features
-
-- PDF & Text Export: Export your entire journal for backup or sharing.
-- Calendar View: See your entries on a calendar to easily find notes from a specific day.
-- Photo Attachments: Add images to your journal entries.
+## 🚀 Upcoming Features
+-  Calendar View — browse entries by date.
+-  Photo Attachments — add images to journal entries.
+-  Templates — guided prompts to kickstart writing.
 
 ---
 
-## Getting Started
+## 🏁 Getting Started
 
 1. **Fork** the repo: [SoulScript](https://github.com/adityasood04/Soul-Script)  
 2. **Clone** your fork:
@@ -71,12 +111,12 @@ A modern, mindful, and beautifully designed journaling app for Android, built wi
 
 --- 
 
-## Contributing
+## 🤝 Contributing
 Contributions are welcome!
 If you have ideas for new features or find a bug, feel free to open an issue or submit a pull request.
 
-## License
-This project is licensed under the [MIT License](https://github.com/adityasood04/Soul-Script/blob/main/LICENSE) – see the LICENSE.md file for details.
+## 📜 License
+This project is licensed under the [GPL License](https://github.com/adityasood04/Soul-Script/blob/main/LICENSE) – see the LICENSE.md file for details.
 
 
 
