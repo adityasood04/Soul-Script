@@ -13,5 +13,6 @@ data class Note(
     val mood: String,
     val isImportant: Boolean = false,
     val imageUri: String? = null,
-    val sketchPath: String? = null
+    val sketchPath: String? = null,
+    val audioPath: String? = null
 )
