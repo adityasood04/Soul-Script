@@ -41,8 +41,9 @@
 
 ## 📷 Screenshots
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/8c6f1c2a-6b82-4d9b-a19a-9b6ebbf8a64f" alt="SoulScript UI" width="100%"/>
+  <img src="https://github.com/user-attachments/assets/823c92c9-d887-4c6c-b235-760da5b058dd" alt="SoulScript UI" width="100%"/>
 </p>
+
 
 ---
 
