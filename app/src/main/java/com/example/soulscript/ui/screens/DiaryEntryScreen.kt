@@ -1,6 +1,8 @@
 package com.example.soulscript.ui.screens
-
+import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,6 +43,8 @@ import coil.compose.AsyncImage
 import com.example.soulscript.ui.theme.Poppins
 import com.example.soulscript.ui.theme.handwritingStyle
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
+import com.example.soulscript.utils.AudioPlayer
+import com.example.soulscript.utils.AudioRecorder
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -71,6 +75,21 @@ fun DiaryEntryScreen(
     sketchPath: String?
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    val audioRecorder = remember { AudioRecorder(context) }
+    var isRecording by remember { mutableStateOf(false) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                isRecording = true
+                audioRecorder.start()
+            } else {
+                Toast.makeText(context, "Audio permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
 
     LaunchedEffect(sketchPath) {
         if (sketchPath != null) {
@@ -78,7 +97,6 @@ fun DiaryEntryScreen(
         }
     }
 
-    val context = LocalContext.current
     val fixedForegroundColor = Color.White.copy(alpha = 0.9f)
     val selectedMood = uiState.mood
 
@@ -104,10 +122,13 @@ fun DiaryEntryScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                if(uiState.title.isBlank()){
-                                    Toast.makeText(context, "Please add a title", Toast.LENGTH_SHORT).show()
-                                } else if(uiState.content.isBlank()){
-                                    Toast.makeText(context, "Please add the content", Toast.LENGTH_SHORT).show()
+                                if (isRecording) {
+                                    isRecording = false
+                                    val path = audioRecorder.stop()
+                                    viewModel.onAudioPathChange(path)
+                                }
+                                if(uiState.title.isBlank() && uiState.content.isBlank() && uiState.sketchPath == null && uiState.audioPath == null){
+                                    Toast.makeText(context, "Entry is empty", Toast.LENGTH_SHORT).show()
                                 } else {
                                     viewModel.saveEntry()
                                     onSaveNote()
@@ -145,7 +166,8 @@ fun DiaryEntryScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Box(
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
                 ) {
                     DiaryPaper(
                         title = uiState.title,
@@ -153,8 +175,20 @@ fun DiaryEntryScreen(
                         content = uiState.content,
                         onContentChange = { viewModel.onContentChange(it) },
                         sketchPath = uiState.sketchPath,
+                        audioPath = uiState.audioPath,
+                        isRecording = isRecording,
                         onAttachSketchClick = onNavigateToDrawing,
-                        onRemoveSketchClick = { viewModel.onSketchPathChange(null) }
+                        onRemoveSketchClick = { viewModel.onSketchPathChange(null) },
+                        onRecordClick = {
+                            if (isRecording) {
+                                isRecording = false
+                                val path = audioRecorder.stop()
+                                viewModel.onAudioPathChange(path)
+                            } else {
+                                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            }
+                        },
+                        onRemoveAudioClick = { viewModel.onAudioPathChange(null) }
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -170,8 +204,12 @@ fun DiaryPaper(
     content: String,
     onContentChange: (String) -> Unit,
     sketchPath: String?,
+    audioPath: String?,
+    isRecording: Boolean,
     onAttachSketchClick: () -> Unit,
     onRemoveSketchClick: () -> Unit,
+    onRecordClick: () -> Unit,
+    onRemoveAudioClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val paperColor = MaterialTheme.colorScheme.surface
@@ -232,50 +270,52 @@ fun DiaryPaper(
             thickness = 1.dp
         )
 
-        if (sketchPath != null) {
-            Box {
-                AsyncImage(
-                    model = File(sketchPath),
-                    contentDescription = "Attached Sketch",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { onAttachSketchClick() }
-                )
-                IconButton(
-                    onClick = onRemoveSketchClick,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .background(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                            CircleShape
-                        )
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (sketchPath != null) {
+                AttachmentThumbnail(
+                    onRemoveClick = onRemoveSketchClick,
+                    onClick = onAttachSketchClick
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Remove Sketch",
-                        modifier = Modifier.size(16.dp)
+                    AsyncImage(
+                        model = File(sketchPath),
+                        contentDescription = "Attached Sketch",
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onAttachSketchClick() }
                     )
                 }
             }
-        } else {
-            OutlinedButton(
-                onClick = onAttachSketchClick,
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    Icons.Default.Brush,
-                    contentDescription = "Brush",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                )
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text("Attach a Sketch", color = MaterialTheme.colorScheme.primary)
+            if (audioPath != null) {
+                AudioPlayerUI(path = audioPath, onRemoveClick = onRemoveAudioClick)
             }
+        }
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (sketchPath == null) {
+                OutlinedButton(onClick = onAttachSketchClick, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Default.Brush, contentDescription = "Brush", modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text("Sketch")
+                }
+            }
+            if (audioPath == null) {
+                OutlinedButton(onClick = onRecordClick, modifier = Modifier.weight(1f)) {
+                    Icon(
+                        imageVector = if (isRecording) Icons.Default.Stop else Icons.Default.Mic,
+                        contentDescription = "Record",
+                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(if (isRecording) "Stop" else "Record")
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -284,7 +324,7 @@ fun DiaryPaper(
             value = content,
             onValueChange = onContentChange,
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .defaultMinSize(minHeight = 300.dp)
                 .drawBehind {
                     val spacingPx = 36.sp.toPx()
@@ -321,6 +361,81 @@ fun DiaryPaper(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun AttachmentThumbnail(
+    onRemoveClick: () -> Unit,
+    onClick: () -> Unit,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+    ) {
+        content()
+        IconButton(
+            onClick = onRemoveClick,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(4.dp)
+                .background(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                    CircleShape
+                )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Remove",
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun AudioPlayerUI(path: String, onRemoveClick: () -> Unit) {
+    val context = LocalContext.current
+    val audioPlayer = remember { AudioPlayer(context) }
+    var isPlaying by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            audioPlayer.stop()
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = {
+                if (isPlaying) {
+                    audioPlayer.stop()
+                    isPlaying = false
+                } else {
+                    isPlaying = true
+                    audioPlayer.play(path) { isPlaying = false }
+                }
+            }) {
+                Icon(
+                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = "Play/Pause"
+                )
+            }
+            Text("Audio Note", modifier = Modifier.weight(1f))
+            IconButton(onClick = onRemoveClick) {
+                Icon(Icons.Default.Close, contentDescription = "Remove Audio")
+            }
+        }
     }
 }
 
@@ -411,9 +526,4 @@ fun MoodItem(
             modifier = Modifier.size(28.dp)
         )
     }
-}
-
-private fun getContrastingTextColor(backgroundColor: Color): Color {
-    val luminance = (0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue)
-    return if (luminance > 0.5) Color.Black.copy(alpha = 0.8f) else Color.White
 }
