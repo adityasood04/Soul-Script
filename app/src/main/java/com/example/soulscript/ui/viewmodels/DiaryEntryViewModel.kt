@@ -22,7 +22,8 @@ data class DiaryEntryUiState(
     val title: String = "",
     val content: String = "",
     val mood: Mood = moodOptions.first(),
-    val sketchPath: String? = null
+    val sketchPath: String? = null,
+    val audioPath:String?=null
 )
 
 @HiltViewModel
@@ -51,7 +52,9 @@ class DiaryEntryViewModel @Inject constructor(
     fun onSketchPathChange(newPath: String?) {
         _uiState.update { it.copy(sketchPath = newPath) }
     }
-
+    fun onAudioPathChange(newPath: String?) {
+        _uiState.update { it.copy(audioPath = newPath) }
+    }
     fun onParametersReceived(title: String?, content: String?) {
         _uiState.update {
             it.copy(
@@ -69,7 +72,8 @@ class DiaryEntryViewModel @Inject constructor(
                 content = currentState.content,
                 date = System.currentTimeMillis(),
                 mood = currentState.mood.label,
-                sketchPath = currentState.sketchPath
+                sketchPath = currentState.sketchPath,
+                audioPath = currentState.audioPath
             )
             repository.insertNote(newNote)
         }
