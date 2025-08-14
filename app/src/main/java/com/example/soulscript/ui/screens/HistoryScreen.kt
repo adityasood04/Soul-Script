@@ -67,8 +67,7 @@ fun HistoryScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-        },
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+        }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             Row(
