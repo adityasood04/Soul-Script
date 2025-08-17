@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.SentimentVerySatisfied
 import androidx.compose.material3.*
@@ -34,7 +35,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
-    viewModel: StatsViewModel = hiltViewModel()
+    viewModel: StatsViewModel = hiltViewModel(),
+    onRewindClick: (String) -> Unit,
 ) {
     val uiState by viewModel.statsUiState.collectAsState()
 
@@ -101,7 +103,7 @@ fun StatsScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(months.size) { index ->
-                        MonthSection(calendar = months[index], heatmapData = uiState.heatmapData)
+                        MonthSection(calendar = months[index], heatmapData = uiState.heatmapData, onRewindClick = onRewindClick)
                     }
                 }
             }
@@ -264,7 +266,7 @@ fun StatCard(title: String, value: String, icon: @Composable () -> Unit, modifie
 }
 
 @Composable
-fun MonthSection(calendar: Calendar, heatmapData: Map<Long, Int>) {
+fun MonthSection(calendar: Calendar, heatmapData: Map<Long, Int>,onRewindClick: (String) -> Unit) {
     val monthName = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(calendar.time)
     val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
     val firstDayOfMonth = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
@@ -282,14 +284,34 @@ fun MonthSection(calendar: Calendar, heatmapData: Map<Long, Int>) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         modifier = Modifier
             .width(200.dp)
-            .height(230.dp)
+            .height(250.dp)
     ) {
         Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)) {
-            Text(
-                text = monthName,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold
-            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = monthName,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                IconButton(
+                    onClick = {
+                        val yearMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(calendar.time)
+                        onRewindClick(yearMonth)
+                    },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Insights,
+                        contentDescription = "View Monthly Rewind",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(modifier = Modifier.fillMaxWidth()) {

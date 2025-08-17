@@ -94,4 +94,6 @@ dependencies {
 
     //biometric
     implementation("androidx.biometric:biometric:1.4.0-alpha02")
+
+    implementation("com.google.accompanist:accompanist-flowlayout:0.32.0")
 }

@@ -10,6 +10,8 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     fun getNoteById(id: Int): Flow<Note> = noteDao.getNoteById(id)
 
+    fun getNotesForMonth(yearMonth: String): Flow<List<Note>> = noteDao.getNotesForMonth(yearMonth)
+
     suspend fun insertNote(note: Note) {
         noteDao.insertNote(note)
     }

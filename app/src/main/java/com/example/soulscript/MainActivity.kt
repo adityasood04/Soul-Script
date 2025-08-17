@@ -3,7 +3,6 @@ package com.example.soulscript
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,7 +18,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,23 +38,24 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.soulscript.utils.ThemeOption
 import com.example.soulscript.navigation.Routes
 import com.example.soulscript.navigation.navigationItems
 import com.example.soulscript.ui.screens.DiaryEntryScreen
 import com.example.soulscript.ui.screens.DrawingScreen
-import com.example.soulscript.ui.screens.NoteDetailScreen
-import com.example.soulscript.ui.screens.StatsScreen
 import com.example.soulscript.ui.screens.HistoryScreen
 import com.example.soulscript.ui.screens.HomeScreen
 import com.example.soulscript.ui.screens.LockScreen
+import com.example.soulscript.ui.screens.MonthlyRewindScreen
 import com.example.soulscript.ui.screens.NameEntryScreen
+import com.example.soulscript.ui.screens.NoteDetailScreen
 import com.example.soulscript.ui.screens.SettingsScreen
+import com.example.soulscript.ui.screens.StatsScreen
 import com.example.soulscript.ui.screens.TemplatesScreen
 import com.example.soulscript.ui.screens.WelcomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
 import com.example.soulscript.ui.viewmodels.SettingsViewModel
+import com.example.soulscript.utils.ThemeOption
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -94,6 +99,7 @@ fun RootNavigation(
                 )
             }
         }
+
         true -> {
             if (lockEnabled && !isUnlocked) {
                 LockScreen(onUnlock = { isUnlocked = true })
@@ -101,6 +107,7 @@ fun RootNavigation(
                 MainScreen()
             }
         }
+
         false -> {
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "welcome") {
@@ -181,11 +188,16 @@ fun MainScreen() {
                 )
             }
             composable(Routes.History) {
-                HistoryScreen(onNoteClick = {noteId->
+                HistoryScreen(onNoteClick = { noteId ->
                     navController.navigate("${Routes.NoteDetail}/${noteId}")
                 })
             }
-            composable(Routes.Stats) { StatsScreen() }
+            composable(Routes.Stats) {
+                StatsScreen(onRewindClick = { yearMonth ->
+                    navController.navigate("monthly_rewind/$yearMonth")
+                }
+                )
+            }
             composable(Routes.Settings) { SettingsScreen() }
 
             composable(
@@ -224,8 +236,10 @@ fun MainScreen() {
                     onNavigateBack = { navController.popBackStack() },
                     onTemplateSelected = { title, content ->
                         Log.i("Adi", "Template: $title $content")
-                        val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
-                        val encodedContent = URLEncoder.encode(content, StandardCharsets.UTF_8.toString())
+                        val encodedTitle =
+                            URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                        val encodedContent =
+                            URLEncoder.encode(content, StandardCharsets.UTF_8.toString())
                         val sketchPath = null;
                         navController.navigate("${Routes.DiaryEntry}?templateTitle=$encodedTitle&templateContent=$encodedContent&sketchPath=$sketchPath")
                     }
@@ -248,6 +262,14 @@ fun MainScreen() {
                 arguments = listOf(navArgument("noteId") { type = NavType.IntType })
             ) {
                 NoteDetailScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = "monthly_rewind/{yearMonth}",
+                arguments = listOf(navArgument("yearMonth") { type = NavType.StringType })
+            ) {
+                MonthlyRewindScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

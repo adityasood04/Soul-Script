@@ -31,4 +31,7 @@ interface NoteDao {
 
     @Query("DELETE FROM notes_table")
     suspend fun deleteAllNotes()
+
+    @Query("SELECT * FROM notes_table WHERE strftime('%Y-%m', date / 1000, 'unixepoch') = :yearMonth")
+    fun getNotesForMonth(yearMonth: String): Flow<List<Note>>
 }
