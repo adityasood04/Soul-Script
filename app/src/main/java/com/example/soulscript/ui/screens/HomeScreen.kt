@@ -8,7 +8,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.NoteAdd
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -41,7 +43,6 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val onThisDayNote by viewModel.onThisDayNote.collectAsState()
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -62,6 +63,14 @@ fun HomeScreen(
         ) {
             item { GreetingSection(uiState.userName) }
 
+            uiState.wellnessTip?.let { tip ->
+                item {
+                    WellnessTipCard(
+                        tip = tip,
+                        onDismiss = { viewModel.dismissWellnessTip() }
+                    )
+                }
+            }
             item { AddEntryCard(onClick = onAddEntryClick) }
 
             item { GuidedJournalingCard(onClick = onGuidedJournalingClick) }
@@ -82,6 +91,52 @@ fun HomeScreen(
             }
 
 
+        }
+    }
+}
+
+@Composable
+fun WellnessTipCard(tip: String, onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
+        Box(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.Top) {
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = "Wellness Tip",
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "A Moment of Care",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = tip,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Justify,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.9f)
+                    )
+                }
+            }
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Dismiss Tip",
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
+                )
+            }
         }
     }
 }
@@ -291,7 +346,7 @@ fun QuoteOfTheDayCard(quote: String, author: String) {
             Text(
                 text = quote,
                 style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Start,
+                textAlign = TextAlign.Justify,
                 modifier = Modifier
                     .padding(vertical = 8.dp)
                     .fillMaxWidth(),
