@@ -1,17 +1,22 @@
 package com.example.soulscript.ui.viewmodels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.soulscript.data.Note
 import com.example.soulscript.data.NoteRepository
 import com.example.soulscript.data.Quotes
+import com.example.soulscript.data.WellnessTips
 import com.example.soulscript.utils.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import java.util.Calendar
 import javax.inject.Inject
@@ -20,20 +25,24 @@ data class HomeUiState(
     val userName: String = " ",
     val recentNotes: List<Note> = emptyList(),
     val onThisDayNote: Note? = null,
-    val quoteOfTheDay: Pair<String, String> = "" to ""
+    val quoteOfTheDay: Pair<String, String> = "" to "",
+    val wellnessTip: String? = null
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: NoteRepository,
-    private val settingsManager: SettingsManager
+    private val settingsManager: SettingsManager,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val _wellnessTip = MutableStateFlow<String?>(null)
     val uiState: StateFlow<HomeUiState> =
         combine(
             settingsManager.userNameFlow,
-            repository.getAllNotes()
-        ) { userName, allNotes ->
+            repository.getAllNotes(),
+            _wellnessTip
+        ) { userName, allNotes, tip ->
             val firstName = userName.split(" ").firstOrNull() ?: userName
             val recent = allNotes.take(5)
 
@@ -44,7 +53,8 @@ class HomeViewModel @Inject constructor(
             HomeUiState(
                 userName = firstName,
                 recentNotes = recent,
-                quoteOfTheDay = dailyQuote
+                quoteOfTheDay = dailyQuote,
+                wellnessTip = tip
             )
         }.stateIn(
             scope = viewModelScope,
@@ -71,4 +81,17 @@ class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = null
     )
+
+    fun onMoodSaved(mood: String) {
+        _wellnessTip.value = when (mood) {
+            "Sad" -> WellnessTips.sadTips.random()
+            "Stressed" -> WellnessTips.stressedTips.random()
+            "Tired" -> WellnessTips.tiredTips.random()
+            else -> null
+        }
+    }
+
+    fun dismissWellnessTip() {
+        _wellnessTip.value = null
+    }
 }
