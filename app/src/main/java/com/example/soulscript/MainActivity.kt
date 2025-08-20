@@ -19,6 +19,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,7 @@ import com.example.soulscript.ui.screens.TemplatesScreen
 import com.example.soulscript.ui.screens.WelcomeScreen
 import com.example.soulscript.ui.theme.SoulScriptTheme
 import com.example.soulscript.ui.viewmodels.DiaryEntryViewModel
+import com.example.soulscript.ui.viewmodels.HomeViewModel
 import com.example.soulscript.ui.viewmodels.SettingsViewModel
 import com.example.soulscript.utils.ThemeOption
 import dagger.hilt.android.AndroidEntryPoint
@@ -175,6 +177,16 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.Home) {
+                val homeViewModel: HomeViewModel = hiltViewModel()
+                val lastMoodSaved = it.savedStateHandle.get<String>("lastMoodSaved")
+                Log.i("Adi", "received mood in home : $lastMoodSaved")
+
+                LaunchedEffect(lastMoodSaved) {
+                    if (lastMoodSaved != null) {
+                        homeViewModel.onMoodSaved(lastMoodSaved)
+                        it.savedStateHandle["lastMoodSaved"] = null
+                    }
+                }
                 HomeScreen(
                     onAddEntryClick = {
                         navController.navigate(Routes.DiaryEntry)
@@ -224,6 +236,12 @@ fun MainScreen() {
                     onSaveNote = {
                         Toast.makeText(context, "Note saved successfully", Toast.LENGTH_SHORT)
                             .show()
+                        val lastMood = diaryEntryViewModel.uiState.value.mood.label
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("lastMoodSaved", lastMood)
+                        Log.i("Adi", "received mood: $lastMood")
+
                         navController.popBackStack()
                     },
                     onNavigateToDrawing = { navController.navigate(Routes.Drawing) },
