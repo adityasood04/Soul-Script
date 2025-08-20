@@ -76,6 +76,7 @@ class DiaryEntryViewModel @Inject constructor(
                 audioPath = currentState.audioPath
             )
             repository.insertNote(newNote)
+            savedStateHandle["lastMoodSaved"] = currentState.mood.label
         }
     }
 }
