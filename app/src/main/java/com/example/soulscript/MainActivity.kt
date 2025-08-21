@@ -195,7 +195,7 @@ fun MainScreen() {
                 }
                 HomeScreen(
                     onAddEntryClick = {
-                        navController.navigate(Routes.DiaryEntry)
+                        navController.navigate("${Routes.DiaryEntry}/-1")
                     },
                     onNoteClick = { noteId ->
                         navController.navigate("${Routes.NoteDetail}/${noteId}")
@@ -219,8 +219,9 @@ fun MainScreen() {
             composable(Routes.Settings) { SettingsScreen() }
 
             composable(
-                route = "${Routes.DiaryEntry}?templateTitle={templateTitle}&templateContent={templateContent}&sketchPath={sketchPath}",
+                route = "${Routes.DiaryEntry}/{noteId}?templateTitle={templateTitle}&templateContent={templateContent}&sketchPath={sketchPath}",
                 arguments = listOf(
+                    navArgument("noteId") { type = NavType.IntType },
                     navArgument("templateTitle") { nullable = true; type = NavType.StringType },
                     navArgument("templateContent") { nullable = true; type = NavType.StringType },
                     navArgument("sketchPath") { nullable = true; type = NavType.StringType }
@@ -265,7 +266,7 @@ fun MainScreen() {
                         val encodedContent =
                             URLEncoder.encode(content, StandardCharsets.UTF_8.toString())
                         val sketchPath = null;
-                        navController.navigate("${Routes.DiaryEntry}?templateTitle=$encodedTitle&templateContent=$encodedContent&sketchPath=$sketchPath")
+                        navController.navigate("${Routes.DiaryEntry}/-1?templateTitle=$encodedTitle&templateContent=$encodedContent&sketchPath=$sketchPath")
                     }
                 )
             }
@@ -286,7 +287,10 @@ fun MainScreen() {
                 arguments = listOf(navArgument("noteId") { type = NavType.IntType })
             ) {
                 NoteDetailScreen(
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToEdit = { noteId ->
+                        navController.navigate("${Routes.DiaryEntry}/$noteId")
+                    }
                 )
             }
             composable(

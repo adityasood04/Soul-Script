@@ -39,6 +39,7 @@ import java.util.*
 @Composable
 fun NoteDetailScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToEdit: (Int) -> Unit,
     viewModel: NoteDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,6 +56,9 @@ fun NoteDetailScreen(
                 },
                 actions = {
                     uiState.note?.let { note ->
+                        IconButton(onClick = { onNavigateToEdit(note.id) }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit Note")
+                        }
                         IconButton(onClick = { showDeleteDialog = true }) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete Note")
                         }

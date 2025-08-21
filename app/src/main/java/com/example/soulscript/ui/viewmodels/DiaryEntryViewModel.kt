@@ -1,6 +1,5 @@
 package com.example.soulscript.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,21 +8,18 @@ import com.example.soulscript.data.NoteRepository
 import com.example.soulscript.ui.screens.Mood
 import com.example.soulscript.ui.screens.moodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class DiaryEntryUiState(
+    val noteId: Int? = null,
     val title: String = "",
     val content: String = "",
     val mood: Mood = moodOptions.first(),
     val sketchPath: String? = null,
-    val audioPath:String?=null
+    val audioPath:String?=null,
+    val isNoteLoaded: Boolean = false
 )
 
 @HiltViewModel
@@ -32,8 +28,41 @@ class DiaryEntryViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val noteId: Int? = if (savedStateHandle.get<Int>("noteId") == -1) null else savedStateHandle["noteId"]
+
     private val _uiState = MutableStateFlow(DiaryEntryUiState())
     val uiState: StateFlow<DiaryEntryUiState> = _uiState.asStateFlow()
+
+    init {
+        if (noteId != null && noteId != -1) {
+            viewModelScope.launch {
+                repository.getNoteById(noteId).firstOrNull()?.let { note ->
+                    _uiState.update {
+                        it.copy(
+                            noteId = note.id,
+                            title = note.title,
+                            content = note.content,
+                            mood = moodOptions.find { mood -> mood.label == note.mood } ?: moodOptions.first(),
+                            sketchPath = note.sketchPath,
+                            audioPath = note.audioPath,
+                            isNoteLoaded = true
+                        )
+                    }
+                }
+            }
+        } else {
+            _uiState.update { it.copy(isNoteLoaded = true) }
+        }
+
+        savedStateHandle.getStateFlow<String?>("sketchPath", null)
+            .onEach { path ->
+                if (path != null) {
+                    onSketchPathChange(path)
+                    savedStateHandle.remove<String>("sketchPath")
+                }
+            }.launchIn(viewModelScope)
+    }
+
 
     fun onTitleChange(newTitle: String) {
         _uiState.update { it.copy(title = newTitle) }
@@ -56,18 +85,21 @@ class DiaryEntryViewModel @Inject constructor(
         _uiState.update { it.copy(audioPath = newPath) }
     }
     fun onParametersReceived(title: String?, content: String?) {
-        _uiState.update {
-            it.copy(
-                title = it.title.ifBlank { title ?: "" },
-                content = it.content.ifBlank { content ?: "" }
-            )
+        if (noteId == null) {
+            _uiState.update {
+                it.copy(
+                    title = it.title.ifBlank { title ?: "" },
+                    content = it.content.ifBlank { content ?: "" }
+                )
+            }
         }
     }
 
     fun saveEntry() {
         viewModelScope.launch {
             val currentState = _uiState.value
-            val newNote = Note(
+            val noteToSave = Note(
+                id = currentState.noteId ?: 0,
                 title = currentState.title,
                 content = currentState.content,
                 date = System.currentTimeMillis(),
@@ -75,7 +107,12 @@ class DiaryEntryViewModel @Inject constructor(
                 sketchPath = currentState.sketchPath,
                 audioPath = currentState.audioPath
             )
-            repository.insertNote(newNote)
+
+            if (currentState.noteId == null || currentState.noteId == -1) {
+                repository.insertNote(noteToSave)
+            } else {
+                repository.updateNote(noteToSave)
+            }
             savedStateHandle["lastMoodSaved"] = currentState.mood.label
         }
     }
