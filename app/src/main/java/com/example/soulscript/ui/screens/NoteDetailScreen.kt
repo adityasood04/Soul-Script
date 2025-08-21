@@ -63,7 +63,11 @@ fun NoteDetailScreen(
                             Icon(Icons.Default.Delete, contentDescription = "Delete Note")
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { paddingValues ->
@@ -102,7 +106,6 @@ fun NoteDetailContent(note: Note, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .verticalScroll(rememberScrollState())
     ) {
