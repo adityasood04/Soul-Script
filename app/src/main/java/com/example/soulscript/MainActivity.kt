@@ -17,6 +17,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -111,13 +112,18 @@ fun RootNavigation(
         }
 
         false -> {
-            val navController = rememberNavController()
-            NavHost(navController = navController, startDestination = "welcome") {
-                composable("welcome") {
-                    WelcomeScreen(onNavigateToNext = { navController.navigate("name_entry") })
-                }
-                composable("name_entry") {
-                    NameEntryScreen()
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = "welcome") {
+                    composable("welcome") {
+                        WelcomeScreen(onNavigateToNext = { navController.navigate("name_entry") })
+                    }
+                    composable("name_entry") {
+                        NameEntryScreen()
+                    }
                 }
             }
         }
