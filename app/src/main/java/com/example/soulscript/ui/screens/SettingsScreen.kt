@@ -276,7 +276,7 @@ fun SettingsScreen(
                     subtitle = "View the project on GitHub",
                     onClick = { uriHandler.openUri("https://github.com/adityasood04/Soul-Script") }
                 )
-                SettingInfoItem(title = "App Version", subtitle = "1.8.0")
+                SettingInfoItem(title = "App Version", subtitle = "1.9.0")
             }
         }
     }
