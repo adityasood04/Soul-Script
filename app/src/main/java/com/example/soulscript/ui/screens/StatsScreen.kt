@@ -1,11 +1,14 @@
 package com.example.soulscript.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,13 +27,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.soulscript.ui.screens.moodOptions
 import com.example.soulscript.ui.viewmodels.MoodStat
 import com.example.soulscript.ui.viewmodels.StatsViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +42,11 @@ fun StatsScreen(
     onRewindClick: (String) -> Unit,
 ) {
     val uiState by viewModel.statsUiState.collectAsState()
+
+    var startAnimation by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        startAnimation = true
+    }
 
     Scaffold(
         topBar = {
@@ -103,20 +111,30 @@ fun StatsScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(months.size) { index ->
-                        MonthSection(calendar = months[index], heatmapData = uiState.heatmapData, onRewindClick = onRewindClick)
+                        MonthSection(
+                            calendar = months[index],
+                            heatmapData = uiState.heatmapData,
+                            onRewindClick = onRewindClick
+                        )
                     }
                 }
             }
 
             if (uiState.moodDistribution.isNotEmpty()) {
                 item {
-                    MoodDistributionChart(moodStats = uiState.moodDistribution)
+                    MoodDistributionChart(
+                        moodStats = uiState.moodDistribution,
+                        startAnimation = startAnimation
+                    )
                 }
             }
 
             if (uiState.monthlyEntries.isNotEmpty()) {
                 item {
-                    MonthlyEntriesChart(monthlyStats = uiState.monthlyEntries)
+                    MonthlyEntriesChart(
+                        monthlyStats = uiState.monthlyEntries,
+                        startAnimation = startAnimation
+                    )
                 }
             }
         }
@@ -124,7 +142,7 @@ fun StatsScreen(
 }
 
 @Composable
-fun MoodDistributionChart(moodStats: List<MoodStat>) {
+fun MoodDistributionChart(moodStats: List<MoodStat>, startAnimation: Boolean) {
     Card(
         shape = MaterialTheme.shapes.large,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -141,30 +159,46 @@ fun MoodDistributionChart(moodStats: List<MoodStat>) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                PieChart(moodStats = moodStats, modifier = Modifier.size(150.dp))
+                PieChart(
+                    moodStats = moodStats,
+                    startAnimation = startAnimation,
+                    modifier = Modifier.size(150.dp)
+                )
                 Spacer(modifier = Modifier.width(16.dp))
                 ChartLegend(moodStats = moodStats, modifier = Modifier.weight(1f))
             }
         }
     }
 }
-
 @Composable
-fun PieChart(moodStats: List<MoodStat>, modifier: Modifier = Modifier) {
-    var startAngle = 0f
+fun PieChart(
+    moodStats: List<MoodStat>,
+    startAnimation: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val total = moodStats.sumOf { it.count }.toFloat()
+    val sweepAngles = moodStats.map { moodStat ->
+        animateFloatAsState(
+            targetValue = if (startAnimation && total > 0f) {
+                (moodStat.count / total) * 360f
+            } else 0f,
+            animationSpec = tween(durationMillis = 1000),
+            label = "PieChartAnimation"
+        ).value
+    }
+
     Canvas(modifier = modifier) {
-        val total = moodStats.sumOf { it.count }.toFloat()
-        if (total > 0) {
-            moodStats.forEach { moodStat ->
-                val sweepAngle = (moodStat.count / total) * 360f
+        var startAngle = 0f
+        if (total > 0f) {
+            moodStats.forEachIndexed { index, moodStat ->
                 drawArc(
                     color = moodStat.color,
                     startAngle = startAngle,
-                    sweepAngle = sweepAngle - 1f,
+                    sweepAngle = sweepAngles[index] - 1f,
                     useCenter = true,
                     size = Size(size.width, size.height)
                 )
-                startAngle += sweepAngle
+                startAngle += (moodStat.count / total) * 360f
             }
         }
     }
@@ -191,7 +225,7 @@ fun ChartLegend(moodStats: List<MoodStat>, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MonthlyEntriesChart(monthlyStats: List<Pair<String, Int>>) {
+fun MonthlyEntriesChart(monthlyStats: List<Pair<String, Int>>, startAnimation: Boolean) {
     val maxEntries = monthlyStats.maxOfOrNull { it.second } ?: 0
     Card(
         shape = MaterialTheme.shapes.large,
@@ -213,13 +247,18 @@ fun MonthlyEntriesChart(monthlyStats: List<Pair<String, Int>>) {
                 verticalAlignment = Alignment.Bottom
             ) {
                 monthlyStats.forEach { (month, count) ->
+                    val targetBarHeight = if (maxEntries > 0) (count.toFloat() / maxEntries.toFloat()) else 0f
+                    val barHeight by animateFloatAsState(
+                        targetValue = if (startAnimation) targetBarHeight else 0f,
+                        animationSpec = tween(durationMillis = 1000),
+                        label = "BarChartAnimation"
+                    )
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(text = count.toString(), style = MaterialTheme.typography.labelSmall)
                         Spacer(modifier = Modifier.height(4.dp))
-                        val barHeight = if (maxEntries > 0) (count.toFloat() / maxEntries.toFloat()) else 0f
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight(barHeight * 0.8f)
@@ -245,7 +284,9 @@ fun StatCard(title: String, value: String, icon: @Composable () -> Unit, modifie
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxSize(),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -266,7 +307,7 @@ fun StatCard(title: String, value: String, icon: @Composable () -> Unit, modifie
 }
 
 @Composable
-fun MonthSection(calendar: Calendar, heatmapData: Map<Long, Int>,onRewindClick: (String) -> Unit) {
+fun MonthSection(calendar: Calendar, heatmapData: Map<Long, Int>, onRewindClick: (String) -> Unit) {
     val monthName = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(calendar.time)
     val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
     val firstDayOfMonth = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
@@ -287,7 +328,6 @@ fun MonthSection(calendar: Calendar, heatmapData: Map<Long, Int>,onRewindClick: 
             .height(250.dp)
     ) {
         Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
